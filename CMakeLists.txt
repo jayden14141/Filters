@@ -3,4 +3,7 @@ project(filters)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_library(filters library.cpp)
+add_library(filters library.cpp
+        src/bloom.h
+        hash_function.h
+)
