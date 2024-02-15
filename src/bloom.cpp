@@ -40,23 +40,37 @@ BloomFilter::~BloomFilter() {
 }
 
 void BloomFilter::Add(const std::string &item) {
-
+    // TODO: Implement the string hashing
+    int some = stoi(item);
+    uint64_t hashed = hasher(some);
+    uint64_t a = (hashed >> 32) | (hashed << 32);
+    uint64_t b = hashed;
+    for (int i = 0; i < m; i++) {
+        data[a] |= (1 << b);
+        a += b;
+    }
 }
 
 bool BloomFilter::Member(const std::string &item) const {
-    return false;
+    int some = stoi(item);
+    uint64_t hashed = hasher(some);
+    uint64_t a = (hashed >> 32) | (hashed << 32);
+    uint64_t b = hashed;
+    for (int i = 0; i < m; i++) {
+        if ((data[a] & (1 << b)) == 0) return false;
+        a += b;
+    }
+    return true;
 }
 
 size_t BloomFilter::Size() const {
     return size;
 }
 
-void BloomFilter::_insertKeys() const {
-    for (int i = 0; i < m; i++) {
-        hash_function::SimpleMixHashing hasher;
-        for (int j = 0; j < n; j++) {
-            int some = 1;
-            data[hasher(some)] = 1;
-        }
+void BloomFilter::_insertKeys() {
+    for (int i = 0; i < n; i++) {
+        //TODO: Generate random strings
+        std::string some = "a";
+        Add(some);
     }
 }

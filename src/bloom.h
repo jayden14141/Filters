@@ -6,6 +6,7 @@
 #define FILTERS_BLOOM_H
 
 #include <string>
+#include "../hash_function.h"
 
 namespace bloomFilter {
 
@@ -18,6 +19,7 @@ namespace bloomFilter {
         uint64_t *data;
         size_t maxLength;
         size_t bitCount;
+        hash_function::SimpleMixHashing hasher;
 
         BloomFilter(int bpi, int n, double fpr);
 
@@ -45,7 +47,7 @@ namespace bloomFilter {
         // False Positive Rate
         double fpr;
 
-        void _insertKeys() const;
+        void _insertKeys();
     };
 
 }
