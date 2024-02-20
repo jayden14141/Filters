@@ -6,13 +6,15 @@
 #define FILTERS_BLOOM_H
 
 #include <string>
-#include "../hash_function.h"
+#include "hash_function.h"
 
 namespace bloomFilter {
 
     static inline size_t GetM(int n);
 
     static inline size_t GetSize(double fpr);
+
+    static inline uint64_t fastrange64(uint64_t word, uint64_t p);
 
     class BloomFilter {
     public:
@@ -26,10 +28,10 @@ namespace bloomFilter {
         ~BloomFilter();
 
         // Add an item to a filter
-        void Add(const std::string &item);
+        void Add(const int &item);
 
         // Tell if the item is in the filter
-        bool Member(const std::string &item) const;
+        bool Member(const int &item) const;
 
         // Return the size of the filter
         size_t Size() const;
@@ -49,7 +51,6 @@ namespace bloomFilter {
 
         void _insertKeys();
     };
-
 }
 
 #endif //FILTERS_BLOOM_H

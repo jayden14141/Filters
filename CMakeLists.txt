@@ -3,9 +3,12 @@ project(filters)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_library(filters library.cpp
+add_subdirectory(tests)
+add_subdirectory(benchmarks)
+
+add_library(filters
         src/bloom.cpp
         src/bloom.h
-        hash_function.cpp
-        hash_function.h
+        src/hash_function.cpp
+        src/hash_function.h
 )

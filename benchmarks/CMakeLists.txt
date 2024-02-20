@@ -1,0 +1,3 @@
+add_executable(benchmark_executable benchmark.cpp)
+
+target_link_libraries(benchmark_executable filters)
