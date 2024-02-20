@@ -12,3 +12,11 @@ add_library(filters
         src/hash_function.cpp
         src/hash_function.h
 )
+
+if (MSVC)
+    # warning level 4
+    add_compile_options(/W4)
+else()
+    # additional warnings
+    add_compile_options(-Wall -Wextra -Wpedantic)
+endif()
