@@ -10,10 +10,6 @@
 
 namespace bloomFilter {
 
-    static inline size_t GetM(int n);
-
-    static inline size_t GetSize(double fpr);
-
     static inline uint64_t fastrange64(uint64_t word, uint64_t p);
 
     class BloomFilter {
@@ -35,6 +31,8 @@ namespace bloomFilter {
 
         // Return the size of the filter
         size_t Size() const;
+
+        void Info() const;
     private:
         size_t size;
 
@@ -48,6 +46,10 @@ namespace bloomFilter {
 
         // False Positive Rate
         double fpr;
+
+        size_t _getM() const;
+
+        size_t _getSize() const;
 
         void _insertKeys();
     };

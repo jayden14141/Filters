@@ -19,22 +19,24 @@ void test_hash() {
 }
 
 void test_bloom() {
-    BloomFilter b(1,10,0.01);
+    BloomFilter b(1,100000000,0.01);
     std::cout << "Size:" << b.Size() << std::endl;
     std::cout << "Adding item 1" << std::endl;
-    b.Add(1);
+    int one = random();
+    int two = random();
+    b.Add(one);
 
     std::cout << "Querying item 1:" << std::endl;
-    std::cout << std::boolalpha << b.Member(1) << std::endl;
+    std::cout << std::boolalpha << b.Member(one) << std::endl;
 
     std::cout << "Querying item 2:" << std::endl;
-    std::cout << std::boolalpha << b.Member(2) << std::endl;
+    std::cout << std::boolalpha << b.Member(two) << std::endl;
 
     std::cout << "Adding item 2" << std::endl;
-    b.Add(2);
+    b.Add(two);
 
     std::cout << "Querying item 2:" << std::endl;
-    std::cout << std::boolalpha << b.Member(2) << std::endl;
+    std::cout << std::boolalpha << b.Member(two) << std::endl;
 
 }
 

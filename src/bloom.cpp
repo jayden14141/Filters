@@ -14,6 +14,7 @@
 
 using namespace bloomFilter;
 
+
 uint64_t bloomFilter::fastrange64(uint64_t word, uint64_t p)  {
     // http://lemire.me/blog/2016/06/27/a-fast-alternative-to-the-modulo-reduction/
 #ifdef __SIZEOF_INT128__ // then we know we have a 128-bit int
@@ -33,22 +34,12 @@ uint64_t bloomFilter::fastrange64(uint64_t word, uint64_t p)  {
 #endif // __SIZEOF_INT128__
 }
 
-size_t bloomFilter::GetM(int n) {
-    double bits_per_item = 64.0;
-    return std::max(1, (int)round(bits_per_item/n*exp(1.0)));
-}
-
-size_t bloomFilter::GetSize(double fpr) {
-    double bit = log2(exp(1)) * log2(1 / fpr);
-    return ceil(bit);
-}
-
 BloomFilter::BloomFilter(int bpi, int n, double fpr) {
     this->bits_per_item = bpi;
     this->fpr = fpr;
     this->n = n;
-    this->m = (int) GetM(n);
-    this->size = (int) GetSize(fpr);
+    this->size = (int) _getSize();
+    this->m = (int) _getM();
     this->data = new uint64_t[size];
     std::fill_n(data,size,0);
     _insertKeys();
@@ -86,10 +77,29 @@ size_t BloomFilter::Size() const {
     return size;
 }
 
+void BloomFilter::Info() const {
+    std::cout << "Bloom Filter" << std::endl;
+    std::cout << "------------------------------- \n" << std::endl;
+    std::cout << "Bits per Item : " << bits_per_item << std::endl;
+    std::cout << "Size of a filter  : " << (int)ceil(size * 64) << std::endl;
+    std::cout << "Number of Hash functions used  : " << m << std::endl;
+    std::cout << "Number of keys inserted  : " << n << std::endl;
+    std::cout << "False positive rate  : " << fpr << std::endl;
+}
+
+size_t BloomFilter::_getM() const {
+    return std::max(1, (int)round((double)size*64*log(2)/n));
+}
+
+size_t BloomFilter::_getSize() const {
+    double bit = n * log(fpr) / log(1 / pow(2,log(2)));
+    return ceil(bit / 64);
+}
+
 void BloomFilter::_insertKeys() {
     for (int i = 0; i < n; i++) {
         //TODO: Generate random strings
-        int some = 123;
+        int some = random();
         Add(some);
     }
 }
