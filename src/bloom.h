@@ -8,10 +8,9 @@
 #include <string>
 #include <cstdint>
 #include "hash_function.h"
+#include "util.h"
 
 namespace bloomFilter {
-
-    static inline uint64_t fastrange64(uint64_t word, uint64_t p);
 
     class BloomFilter {
     public:
@@ -19,6 +18,7 @@ namespace bloomFilter {
         size_t maxLength;
         size_t bitCount;
         hash_function::SimpleMixHashing hasher;
+
 
         BloomFilter(int n, double fpr);
 

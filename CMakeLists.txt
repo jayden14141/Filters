@@ -11,8 +11,12 @@ add_library(filters
         src/bloom.h
         src/hash_function.cpp
         src/hash_function.h
-        src/table.cpp
-        src/table.h
+        src/util.h
+        src/util.cpp
+#        src/table.cpp
+#        src/table.h
+#        src/cuckoo.h
+#        src/cuckoo.cpp
 )
 
 if (MSVC)

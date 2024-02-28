@@ -21,12 +21,15 @@ namespace cuckooFilter {
 
         hash_function::SimpleMixHashing hasher;
 
+        // TODO: Set up a new fingerprint function depending on f
+        hash_function::SimpleMixHashing fingerprint;
+
         CuckooFilter(int n,  int f, double fpr);
 
         ~CuckooFilter();
 
         // Add an item to a filter
-        void Add(const int &item);
+        bool Add(const int &item);
 
         // Tell if the item is in the filter
         bool Member(const int &item) const;
