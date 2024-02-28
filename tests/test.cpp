@@ -19,7 +19,7 @@ void test_hash() {
 }
 
 void test_bloom() {
-    BloomFilter b(1,100000000,0.01);
+    BloomFilter b(100000000,0.01);
     std::cout << "Size:" << b.Size() << std::endl;
     std::cout << "Adding item 1" << std::endl;
     int one = random();

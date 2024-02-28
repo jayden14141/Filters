@@ -6,6 +6,7 @@
 #define FILTERS_BLOOM_H
 
 #include <string>
+#include <cstdint>
 #include "hash_function.h"
 
 namespace bloomFilter {
@@ -19,7 +20,7 @@ namespace bloomFilter {
         size_t bitCount;
         hash_function::SimpleMixHashing hasher;
 
-        BloomFilter(int bpi, int n, double fpr);
+        BloomFilter(int n, double fpr);
 
         ~BloomFilter();
 
@@ -29,14 +30,16 @@ namespace bloomFilter {
         // Tell if the item is in the filter
         bool Member(const int &item) const;
 
-        // Return the size of the filter
+        // Return the size of the filter in bits
         size_t Size() const;
 
         void Info() const;
     private:
+        // Size of the array itself
         size_t size;
 
-        int bits_per_item;
+        // (Size * 64 / n)
+        double bits_per_item;
 
         // Number of hash functions used
         int m;
