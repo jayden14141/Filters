@@ -6,10 +6,16 @@
 #define FILTERS_UTIL_H
 
 #include <cstdlib>
+#include <vector>
+#include <random>
+
+#include "util.h"
 
 class util {
 public:
-    static uint64_t fastrange64(uint64_t word, uint64_t p);
+    static uint64_t fastRange64(uint64_t word, uint64_t p);
+
+    static std::vector<uint64_t> generateUniqueKeys(size_t count);
 };
 
 

@@ -12,7 +12,7 @@
 
 namespace cuckooFilter {
 
-//    static inline uint64_t fastrange64(uint64_t word, uint64_t p);
+//    static inline uint64_t fastRange64(uint64_t word, uint64_t p);
 
     class CuckooFilter {
     public:

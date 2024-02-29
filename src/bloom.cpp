@@ -14,7 +14,7 @@
 
 using namespace bloomFilter;
 
-BloomFilter::BloomFilter(int n, double fpr) {
+BloomFilter::BloomFilter(int n, double fpr, bool construct) {
     this->fpr = fpr;
     this->n = n;
     this->size = (int) _getSize();
@@ -22,7 +22,7 @@ BloomFilter::BloomFilter(int n, double fpr) {
     this->data = new uint64_t[size];
     this->bits_per_item = (double)size*64/(double)n;
     std::fill_n(data,size,0);
-    _insertKeys();
+    if (construct) _insertKeys();
 }
 
 BloomFilter::~BloomFilter() {
@@ -36,7 +36,7 @@ void BloomFilter::Add(const int &item) {
     uint64_t a = (hashed >> 32) | (hashed << 32);
     uint64_t b = hashed;
     for (int i = 0; i < m; i++) {
-        data[util::fastrange64(a,this->size)] |= (1 << b);
+        data[util::fastRange64(a, this->size)] |= (1 << b);
         a += b;
     }
 }
@@ -47,7 +47,7 @@ bool BloomFilter::Member(const int &item) const {
     uint64_t a = (hashed >> 32) | (hashed << 32);
     uint64_t b = hashed;
     for (int i = 0; i < m; i++) {
-        if ((data[util::fastrange64(a,this->size)] & (1 << b)) == 0) return false;
+        if ((data[util::fastRange64(a, this->size)] & (1 << b)) == 0) return false;
         a += b;
     }
     return true;
@@ -57,14 +57,20 @@ size_t BloomFilter::Size() const {
     return size;
 }
 
+double BloomFilter::Fpr() const {
+    return fpr;
+}
+
 void BloomFilter::Info() const {
     std::cout << "Bloom Filter" << std::endl;
     std::cout << "------------------------------- \n" << std::endl;
-    std::cout << "Bits per Item : " << bits_per_item << std::endl;
-    std::cout << "Size of a filter in bits  : " << (int)ceil(size * 64) << std::endl;
-    std::cout << "Number of Hash functions used  : " << m << std::endl;
     std::cout << "Number of keys inserted  : " << n << std::endl;
     std::cout << "False positive rate  : " << fpr << std::endl;
+    std::cout << "Number of Hash functions used  : " << m << std::endl;
+    std::cout << "Size of a filter in bits  : " << (int)ceil(size * 64) << std::endl;
+    std::cout << "Bits per Item (Theoretical) : " << log2(1/fpr) << std::endl;
+    std::cout << "Bits per Item : " << bits_per_item << std::endl;
+    std::cout << "Space overhead : " << 100 * (bits_per_item - log2(1/fpr)) / log2(1/fpr) << "% " << std::endl;
 }
 
 size_t BloomFilter::_getM() const {

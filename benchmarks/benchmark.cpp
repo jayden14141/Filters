@@ -45,7 +45,7 @@ void benchmark() {
     for (int i = 0; i < 5; i++) {
         cout << "\n\nIteration #: " << i + 1 << endl;
         start = Clock::now().time_since_epoch().count();
-        BloomFilter b(100000000,0.01);
+        BloomFilter b(100000000,0.01, true);
         end = Clock::now().time_since_epoch().count();
         cout << "Initialisation:\n" << end - start << "(ns)" << endl;
 

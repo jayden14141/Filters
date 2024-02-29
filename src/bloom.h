@@ -15,12 +15,9 @@ namespace bloomFilter {
     class BloomFilter {
     public:
         uint64_t *data;
-        size_t maxLength;
-        size_t bitCount;
         hash_function::SimpleMixHashing hasher;
 
-
-        BloomFilter(int n, double fpr);
+        BloomFilter(int n, double fpr, bool construct);
 
         ~BloomFilter();
 
@@ -32,6 +29,9 @@ namespace bloomFilter {
 
         // Return the size of the filter in bits
         size_t Size() const;
+
+        // Return the set false positive rate
+        double Fpr() const;
 
         void Info() const;
     private:
