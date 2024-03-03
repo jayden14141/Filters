@@ -2,6 +2,7 @@
 // Created by Jayden on 28/02/2024.
 //
 
+#include <cstdlib>
 #include "util.h"
 
 // Calculates the modulo operation in a faster way
@@ -22,6 +23,10 @@ uint64_t util::fastRange64(uint64_t word, uint64_t p)  {
     #else
         return word % p; // fallback
 #endif // __SIZEOF_INT128__
+}
+
+size_t util::fastRangeSize(size_t word, size_t p) {
+    return (size_t)util::fastRange64(word, p);
 }
 
 

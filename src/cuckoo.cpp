@@ -3,8 +3,9 @@
 //
 
 #include "cuckoo.h"
+#include "util.h"
 
-cuckooFilter::CuckooFilter::CuckooFilter(int n, double fpr, int f, bool construct) {
+cuckooFilter::CuckooFilter::CuckooFilter(int n, double fpr, bool construct) {
     this->n = n;
 
     this->fpr = fpr;
@@ -13,37 +14,37 @@ cuckooFilter::CuckooFilter::CuckooFilter(int n, double fpr, int f, bool construc
     this->size = _getSize();
 
     this->data = new Table(b,f,(int)m);
-    this->bits_per_item = (double)size/(double)n;
+    this->bits_per_item = (double)f/(double)load_factor;
     if (construct) _insertKeys();
 }
 
 cuckooFilter::CuckooFilter::~CuckooFilter() {
-    delete[] data;
+    delete data;
 }
 
 bool cuckooFilter::CuckooFilter::Add(const int &item) {
     uint64_t hashed_one = hasher(item);
     size_t fingerPrint = fingerprint(item);
     // Placeholder for fingerprint (using 4 bits from the least significant bit)
-    fingerPrint &= 15;
+    fingerPrint &= (1ULL << f) - 1;
     uint64_t hashed_two = hasher(fingerPrint);
     hashed_two ^= hashed_one;
 
     size_t victim;
     uint64_t new_pos = hashed_one;
-    if (data->HasEmptyEntry(hashed_one)) {
-        data->InsertTag(hashed_one, fingerPrint, false, victim);
+    if (data->HasEmptyEntry(util::fastRangeSize(hashed_one, m))) {
+        data->InsertTag(util::fastRangeSize(hashed_one, m), fingerPrint, false, victim);
         return true;
-    } else if (data->HasEmptyEntry(hashed_two)) {
-        data->InsertTag(hashed_two, fingerPrint, false, victim);
+    } else if (data->HasEmptyEntry(util::fastRangeSize(hashed_two, m))) {
+        data->InsertTag(util::fastRangeSize(hashed_two, m), fingerPrint, false, victim);
         return true;
     } else {
         // TODO : Set appropriate values for iteration
         for (int i = 0; i < 5; i++) {
-            data->InsertTag(new_pos, fingerPrint, true, victim);
+            data->InsertTag(util::fastRangeSize(new_pos, m), fingerPrint, true, victim);
             new_pos ^= hasher(victim);
-            if (data->HasEmptyEntry(new_pos)) {
-                data-> InsertTag(new_pos, fingerPrint, false, victim);
+            if (data->HasEmptyEntry(util::fastRangeSize(new_pos, m))) {
+                data-> InsertTag(util::fastRangeSize(new_pos, m), fingerPrint, false, victim);
                 return true;
             } else continue;
         }
@@ -55,10 +56,10 @@ bool cuckooFilter::CuckooFilter::Member(const int &item) const {
     uint64_t hashed_one = hasher(item);
     size_t fingerPrint = fingerprint(item);
     // Placeholder for fingerprint (using 4 bits from the least significant bit)
-    fingerPrint &= 15;
+    fingerPrint &= (1ULL << f) - 1;
     uint64_t hashed_two = hasher(fingerPrint);
     hashed_two ^= hashed_one;
-    return data->FindTag(hashed_one, hashed_two, fingerPrint);
+    return data->FindTag(util::fastRangeSize(hashed_one, m), util::fastRangeSize(hashed_two, m), fingerPrint);
 }
 
 size_t cuckooFilter::CuckooFilter::Size() const {
@@ -76,7 +77,7 @@ void cuckooFilter::CuckooFilter::Info() const {
     std::cout << "False positive rate  : " << fpr << std::endl;
     std::cout << "Size of a fingerprint function  : " << f << std::endl;
     std::cout << "Shape of a filter  : " << "(" << m << ", " << b << ")" << std::endl;
-    std::cout << "Size of a filter in bits  : " << (int)ceil(Size() * 64) << std::endl;
+    std::cout << "Size of a filter in bits  : " << (int)ceil(Size()) << std::endl;
     std::cout << "Bits per Item (Theoretical) : " << log2(1/fpr) << std::endl;
     std::cout << "Bits per Item : " << bits_per_item << std::endl;
     std::cout << "Space overhead : " << 100 * (bits_per_item - log2(1/fpr)) / log2(1/fpr) << "% " << std::endl;

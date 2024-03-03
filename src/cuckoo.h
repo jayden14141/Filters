@@ -22,7 +22,7 @@ namespace cuckooFilter {
         // TODO: Set up a new fingerprint function depending on f
         hash_function::SimpleMixHashing fingerprint;
 
-        CuckooFilter(int n, double fpr, int f, bool construct);
+        CuckooFilter(int n, double fpr, bool construct);
 
         ~CuckooFilter();
 

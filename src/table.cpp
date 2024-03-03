@@ -8,18 +8,6 @@
 
 namespace cuckooFilter {
 
-//    Bucket::Bucket() : data(nullptr), size(0) {}
-//
-//    Bucket::allocation(size_t count, size_t typeSize) {
-//        data = std::malloc(count*typeSize);
-//        size = count * typeSize;
-//        std::memset(data,0,size);
-//    }
-//
-//    Bucket::~Bucket() {
-//        std::free(data);
-//    }
-
     Table::Table(int b, int f, int m) : numberOfEntry(b), fingerPrintSize(f), numberOfBuckets(m) {
         // Size of each bucket = number of entries * bit of fingerprint function
         buckets = new Bucket[m];

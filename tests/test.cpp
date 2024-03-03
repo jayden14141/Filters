@@ -90,7 +90,7 @@ void test_bloom() {
 }
 
 void test_cuckoo() {
-    CuckooFilter c(100000000, 0.01, 4, true);
+    CuckooFilter c(100000000, 0.01, true);
     std::cout << "Size:" << c.Size() << std::endl;
     std::cout << "Adding item 1" << std::endl;
     int one = random();

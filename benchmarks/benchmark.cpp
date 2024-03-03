@@ -11,11 +11,13 @@
 #include <unistd.h>
 
 #include "../src/bloom.h"
+#include "../src/cuckoo.h"
 #include "../src/hash_function.h"
 
 using namespace std;
 using namespace hash_function;
 using namespace bloomFilter;
+using namespace cuckooFilter;
 using namespace chrono;
 
 struct Sample {
@@ -42,7 +44,7 @@ void benchmark() {
     using Clock = high_resolution_clock;
     long long start;
     long long end;
-    for (int i = 0; i < 5; i++) {
+    for (int i = 0; i < 1; i++) {
         cout << "\n\nIteration #: " << i + 1 << endl;
         start = Clock::now().time_since_epoch().count();
         BloomFilter b(100000000,0.01, true);
@@ -53,6 +55,19 @@ void benchmark() {
 
         start = Clock::now().time_since_epoch().count();
         b.Add(1);
+        end = Clock::now().time_since_epoch().count();
+        cout << "Insertion of a single key:\n" << end - start << "(ns)" << endl;
+
+
+        start = Clock::now().time_since_epoch().count();
+        CuckooFilter c(100000000,0.01, true);
+        end = Clock::now().time_since_epoch().count();
+        cout << "Initialisation:\n" << end - start << "(ns)" << endl;
+
+        c.Info();
+
+        start = Clock::now().time_since_epoch().count();
+        c.Add(1);
         end = Clock::now().time_since_epoch().count();
         cout << "Insertion of a single key:\n" << end - start << "(ns)" << endl;
     }
