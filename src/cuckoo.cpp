@@ -4,14 +4,17 @@
 
 #include "cuckoo.h"
 
-cuckooFilter::CuckooFilter::CuckooFilter(int n, int f, double fpr) {
+cuckooFilter::CuckooFilter::CuckooFilter(int n, double fpr, int f, bool construct) {
     this->n = n;
-    this->f = f;
-    this->fpr = fpr;
-    this->m = _getM();
 
-    this->data = new Table(b,f,m);
-    _insertKeys();
+    this->fpr = fpr;
+    this->f = _getF();
+    this->m = _getM();
+    this->size = _getSize();
+
+    this->data = new Table(b,f,(int)m);
+    this->bits_per_item = (double)size/(double)n;
+    if (construct) _insertKeys();
 }
 
 cuckooFilter::CuckooFilter::~CuckooFilter() {
@@ -62,22 +65,41 @@ size_t cuckooFilter::CuckooFilter::Size() const {
     return size;
 }
 
-//TODO: Implement me!
+double cuckooFilter::CuckooFilter::Fpr() const {
+    return fpr;
+}
+
 void cuckooFilter::CuckooFilter::Info() const {
+    std::cout << "Cuckoo Filter" << std::endl;
+    std::cout << "------------------------------- \n" << std::endl;
+    std::cout << "Number of keys inserted  : " << n << std::endl;
+    std::cout << "False positive rate  : " << fpr << std::endl;
+    std::cout << "Size of a fingerprint function  : " << f << std::endl;
+    std::cout << "Shape of a filter  : " << "(" << m << ", " << b << ")" << std::endl;
+    std::cout << "Size of a filter in bits  : " << (int)ceil(Size() * 64) << std::endl;
+    std::cout << "Bits per Item (Theoretical) : " << log2(1/fpr) << std::endl;
+    std::cout << "Bits per Item : " << bits_per_item << std::endl;
+    std::cout << "Space overhead : " << 100 * (bits_per_item - log2(1/fpr)) / log2(1/fpr) << "% " << std::endl;
 
 }
 
-//TODO: Implement me!
 size_t cuckooFilter::CuckooFilter::_getM() const {
-    return 0;
+    return static_cast<size_t> (ceil(n/load_factor));
 }
 
-//TODO: Implement me!
+int cuckooFilter::CuckooFilter::_getF() const {
+    return ceil(log2(1/fpr) + log2(2*b));
+}
+
 size_t cuckooFilter::CuckooFilter::_getSize() const {
-    return 0;
+    return (int)f*b*m;
 }
 
 //TODO: Implement me!
 void cuckooFilter::CuckooFilter::_insertKeys() {
-
+    for (int i = 0; i < n; i++) {
+        //TODO: Generate random strings
+        int some = random();
+        Add(some);
+    }
 }

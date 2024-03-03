@@ -13,10 +13,10 @@ add_library(filters
         src/hash_function.h
         src/util.h
         src/util.cpp
-#        src/table.cpp
-#        src/table.h
-#        src/cuckoo.h
-#        src/cuckoo.cpp
+        src/table.cpp
+        src/table.h
+        src/cuckoo.h
+        src/cuckoo.cpp
 )
 
 if (MSVC)

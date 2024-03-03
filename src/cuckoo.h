@@ -12,8 +12,6 @@
 
 namespace cuckooFilter {
 
-//    static inline uint64_t fastRange64(uint64_t word, uint64_t p);
-
     class CuckooFilter {
     public:
 
@@ -24,7 +22,7 @@ namespace cuckooFilter {
         // TODO: Set up a new fingerprint function depending on f
         hash_function::SimpleMixHashing fingerprint;
 
-        CuckooFilter(int n,  int f, double fpr);
+        CuckooFilter(int n, double fpr, int f, bool construct);
 
         ~CuckooFilter();
 
@@ -36,6 +34,8 @@ namespace cuckooFilter {
 
         // Return the size of the filter in bits
         size_t Size() const;
+
+        double Fpr() const;
 
         void Info() const;
     private:
@@ -57,10 +57,12 @@ namespace cuckooFilter {
         double fpr;
 
         // Number of Buckets
-        int m;
+        size_t m;
 
         // Size of a filter in bits
         size_t size;
+
+        int _getF() const;
 
         size_t _getM() const;
 

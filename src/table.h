@@ -10,13 +10,12 @@
 
 namespace cuckooFilter {
     struct Bucket {
-        void *data;
-        // Size in bytes
+        std::bitset<66> data;
+        // Size in bits
         size_t size;
 
-        Bucket();
-        void allocation(size_t count, size_t typeSize);
-        ~Bucket();
+        Bucket() = default;
+        ~Bucket() = default;
     };
 
     class Table {
@@ -29,10 +28,10 @@ namespace cuckooFilter {
 
         ~Table();
 
-        bool HasEmptyEntry(size_t row);
+        bool HasEmptyEntry(size_t row) const;
 
         // Read tags based on row and column number
-        size_t ReadTag(size_t row, size_t column);
+        size_t ReadTag(size_t row, size_t column) const;
 
         // Write tag on certain row (any empty place)
         bool WriteTag(size_t row, size_t value);
@@ -42,7 +41,7 @@ namespace cuckooFilter {
 
         bool InsertTag(size_t row, size_t value, bool evict, size_t &victim);
 
-        bool FindTag(size_t row1, size_t row2, size_t value);
+        bool FindTag(size_t row1, size_t row2, size_t value) const;
 
         void DeleteTag(size_t row, size_t column);
 
