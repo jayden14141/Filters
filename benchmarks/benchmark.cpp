@@ -35,6 +35,7 @@ struct Sample {
         result << "Test Writing\n";
         result << "A,B,C,\n";
         result.close();
+        return "";
     }
 };
 
@@ -45,24 +46,24 @@ void benchmark() {
     long long start;
     long long end;
     for (int i = 0; i < 1; i++) {
-        cout << "\n\nIteration #: " << i + 1 << endl;
+//        cout << "\n\nIteration #: " << i + 1 << endl;
+//        start = Clock::now().time_since_epoch().count();
+//        BloomFilter b(10000000,0.01, true);
+//        end = Clock::now().time_since_epoch().count();
+//        cout << "Initialisation:\n\n" << end - start << "(ns)" << endl;
+//
+//        b.Info();
+//
+//        start = Clock::now().time_since_epoch().count();
+//        b.Add(1);
+//        end = Clock::now().time_since_epoch().count();
+//        cout << "Insertion of a single key:\n" << end - start << "(ns)" << endl;
+
+
         start = Clock::now().time_since_epoch().count();
-        BloomFilter b(100000000,0.01, true);
+        CuckooFilter c(1000000,0.01, true);
         end = Clock::now().time_since_epoch().count();
-        cout << "Initialisation:\n" << end - start << "(ns)" << endl;
-
-        b.Info();
-
-        start = Clock::now().time_since_epoch().count();
-        b.Add(1);
-        end = Clock::now().time_since_epoch().count();
-        cout << "Insertion of a single key:\n" << end - start << "(ns)" << endl;
-
-
-        start = Clock::now().time_since_epoch().count();
-        CuckooFilter c(100000000,0.01, true);
-        end = Clock::now().time_since_epoch().count();
-        cout << "Initialisation:\n" << end - start << "(ns)" << endl;
+        cout << "Initialisation:\n\n" << end - start << "(ns)" << endl;
 
         c.Info();
 

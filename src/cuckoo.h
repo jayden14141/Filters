@@ -19,8 +19,7 @@ namespace cuckooFilter {
 
         hash_function::SimpleMixHashing hasher;
 
-        // TODO: Set up a new fingerprint function depending on f
-        hash_function::SimpleMixHashing fingerprint;
+        hash_function::FingerPrinting fingerPrinter;
 
         CuckooFilter(int n, double fpr, bool construct);
 

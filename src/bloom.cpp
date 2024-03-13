@@ -83,9 +83,8 @@ size_t BloomFilter::_getSize() const {
 }
 
 void BloomFilter::_insertKeys() {
+    std::vector<uint64_t> random = util::generateUniqueKeys(n);
     for (int i = 0; i < n; i++) {
-        //TODO: Generate random strings
-        int some = random();
-        Add(some);
+        Add((int)random[i]);
     }
 }

@@ -24,5 +24,17 @@ namespace hash_function {
         static uint64_t murmur64(uint64_t h);
         uint64_t operator()(uint64_t key) const;
     };
+
+    class FingerPrinting {
+    public:
+        uint64_t seed;
+        int outputBit = 64;
+        void set(int bit);
+        FingerPrinting();
+        uint64_t operator()(uint64_t key) const;
+
+        static uint64_t murmur64(uint64_t h);
+        uint64_t trimToOutputBits(uint64_t hash) const;
+    };
 }
 #endif //FILTERS_HASH_FUNCTION_H

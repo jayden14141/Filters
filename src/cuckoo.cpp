@@ -12,6 +12,7 @@ cuckooFilter::CuckooFilter::CuckooFilter(int n, double fpr, bool construct) {
     this->f = _getF();
     this->m = _getM();
     this->size = _getSize();
+    fingerPrinter.set(f);
 
     this->data = new Table(b,f,(int)m);
     this->bits_per_item = (double)f/(double)load_factor;
@@ -24,9 +25,7 @@ cuckooFilter::CuckooFilter::~CuckooFilter() {
 
 bool cuckooFilter::CuckooFilter::Add(const int &item) {
     uint64_t hashed_one = hasher(item);
-    size_t fingerPrint = fingerprint(item);
-    // Placeholder for fingerprint (using 4 bits from the least significant bit)
-    fingerPrint &= (1ULL << f) - 1;
+    size_t fingerPrint = fingerPrinter(item);
     uint64_t hashed_two = hasher(fingerPrint);
     hashed_two ^= hashed_one;
 
@@ -54,9 +53,7 @@ bool cuckooFilter::CuckooFilter::Add(const int &item) {
 
 bool cuckooFilter::CuckooFilter::Member(const int &item) const {
     uint64_t hashed_one = hasher(item);
-    size_t fingerPrint = fingerprint(item);
-    // Placeholder for fingerprint (using 4 bits from the least significant bit)
-    fingerPrint &= (1ULL << f) - 1;
+    size_t fingerPrint = fingerPrinter(item);
     uint64_t hashed_two = hasher(fingerPrint);
     hashed_two ^= hashed_one;
     return data->FindTag(util::fastRangeSize(hashed_one, m), util::fastRangeSize(hashed_two, m), fingerPrint);
@@ -96,11 +93,10 @@ size_t cuckooFilter::CuckooFilter::_getSize() const {
     return (int)f*b*m;
 }
 
-//TODO: Implement me!
 void cuckooFilter::CuckooFilter::_insertKeys() {
+    //TODO: Generate random strings
+    std::vector<uint64_t> random = util::generateUniqueKeys(n);
     for (int i = 0; i < n; i++) {
-        //TODO: Generate random strings
-        int some = random();
-        Add(some);
+        Add((int)random[i]);
     }
 }

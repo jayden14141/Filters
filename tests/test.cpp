@@ -19,26 +19,26 @@ using namespace bloomFilter;
 using namespace cuckooFilter;
 
 void test_fpr() {
-    int n = 20;
-    for (int j = 0; j < 8; j++) {
-        BloomFilter b(n,0.01, false);
+    int n = 1000000;
+    for (int j = 0; j < 5; j++) {
+        BloomFilter c(n,0.01, false);
         vector<uint64_t> keys = util::generateUniqueKeys(n);
         int count = 0;
         // Add half of the random generated keys
         for (int i = 0; i < n / 2; i++) {
-            b.Add(keys[i]);
+            c.Add(keys[i]);
         }
 
         // Test false positive rate by querying the other half that hasn't been added
         for (int i = n / 2; i < n; i++) {
-            if (b.Member(keys[i])) count++;
+            if (c.Member(keys[i])) count++;
         }
 
         double fpr_actual =  (double)count / ((double)n / 2);
         cout << "---------------------------------------" << endl;
         cout << "Added keys : " << n/2 << endl;
         cout << "Queried keys that has not been added : " << n/2 << endl;
-        cout << "Target false positive rate : " << b.Fpr() << endl;
+        cout << "Target false positive rate : " << c.Fpr() << endl;
         cout << "Actual false positive rate : " << fpr_actual << endl;
         n *= 10;
     }
@@ -47,9 +47,9 @@ void test_fpr() {
 void test_fnr() {
     cout << "False Negative test" << endl;
     cout << "---------------------------------------" << endl;
-    int n = 100000000;
+    int n = 100000;
     cout << "Added keys : " << n << endl;
-    BloomFilter b(n,0.01, false);
+    CuckooFilter b(n,0.01, false);
     vector<uint64_t> keys = util::generateUniqueKeys(n);
     for (int i = 0; i < n; i++) {
         b.Add(keys[i]);
@@ -90,7 +90,7 @@ void test_bloom() {
 }
 
 void test_cuckoo() {
-    CuckooFilter c(100000000, 0.01, true);
+    CuckooFilter c(100000, 0.01, true);
     std::cout << "Size:" << c.Size() << std::endl;
     std::cout << "Adding item 1" << std::endl;
     int one = random();
@@ -118,8 +118,8 @@ void test_correctness() {
 
 int main() {
 //    test_hash();
-    test_correctness();
-//    test_fpr();
+//    test_correctness();
+    test_fpr();
 //    test_fnr();
     return 0;
 }
