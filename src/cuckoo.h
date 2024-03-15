@@ -36,6 +36,8 @@ namespace cuckooFilter {
 
         double Fpr() const;
 
+        double Bpi() const;
+
         void Info() const;
     private:
 

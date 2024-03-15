@@ -76,7 +76,7 @@ void cuckooFilter::CuckooFilter::Info() const {
     std::cout << "Shape of a filter  : " << "(" << m << ", " << b << ")" << std::endl;
     std::cout << "Size of a filter in bits  : " << (int)ceil(Size()) << std::endl;
     std::cout << "Bits per Item (Theoretical) : " << log2(1/fpr) << std::endl;
-    std::cout << "Bits per Item : " << bits_per_item << std::endl;
+    std::cout << "Bits per Item : " << Bpi() << std::endl;
     std::cout << "Space overhead : " << 100 * (bits_per_item - log2(1/fpr)) / log2(1/fpr) << "% " << std::endl;
 
 }
@@ -99,4 +99,8 @@ void cuckooFilter::CuckooFilter::_insertKeys() {
     for (int i = 0; i < n; i++) {
         Add((int)random[i]);
     }
+}
+
+double cuckooFilter::CuckooFilter::Bpi() const {
+    return bits_per_item;
 }

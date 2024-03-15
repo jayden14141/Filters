@@ -69,7 +69,7 @@ void BloomFilter::Info() const {
     std::cout << "Number of Hash functions used  : " << m << std::endl;
     std::cout << "Size of a filter in bits  : " << (int)ceil(size * 64) << std::endl;
     std::cout << "Bits per Item (Theoretical) : " << log2(1/fpr) << std::endl;
-    std::cout << "Bits per Item : " << bits_per_item << std::endl;
+    std::cout << "Bits per Item : " << Bpi() << std::endl;
     std::cout << "Space overhead : " << 100 * (bits_per_item - log2(1/fpr)) / log2(1/fpr) << "% " << std::endl;
 }
 
@@ -87,4 +87,8 @@ void BloomFilter::_insertKeys() {
     for (int i = 0; i < n; i++) {
         Add((int)random[i]);
     }
+}
+
+double BloomFilter::Bpi() const {
+    return bits_per_item;
 }

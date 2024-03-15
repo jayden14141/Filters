@@ -33,6 +33,8 @@ namespace bloomFilter {
         // Return the set false positive rate
         double Fpr() const;
 
+        double Bpi() const;
+
         void Info() const;
     private:
         // Size of the array itself
