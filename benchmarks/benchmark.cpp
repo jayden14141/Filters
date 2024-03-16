@@ -52,7 +52,7 @@ void write(CSVWriter &c, const std::string& filterType, double x_axis, double y_
                 std::to_string(x_axis),
                 std::to_string(y_axis),
                 std::to_string(add),
-                std::to_string(iter)
+                std::to_string(iteration)
         };
         c.writeRow(row);
     } else {
@@ -61,44 +61,9 @@ void write(CSVWriter &c, const std::string& filterType, double x_axis, double y_
                 std::to_string(x_axis),
                 std::to_string(y_axis),
                 std::to_string(add),
-                std::to_string(iter)
+                std::to_string(iteration)
         };
         c.writeRow(row);
-    }
-}
-
-void time() {
-//    auto now = high_resolution_clock::now();
-//    auto a = now.time_since_epoch();
-    using Clock = high_resolution_clock;
-    long long start;
-    long long end;
-    for (int i = 0; i < 1; i++) {
-//        cout << "\n\nIteration #: " << i + 1 << endl;
-//        start = Clock::now().time_since_epoch().count();
-//        BloomFilter b(10000000,0.01, true);
-//        end = Clock::now().time_since_epoch().count();
-//        cout << "Initialisation:\n\n" << end - start << "(ns)" << endl;
-//
-//        b.Info();
-//
-//        start = Clock::now().time_since_epoch().count();
-//        b.Add(1);
-//        end = Clock::now().time_since_epoch().count();
-//        cout << "Insertion of a single key:\n" << end - start << "(ns)" << endl;
-
-
-        start = Clock::now().time_since_epoch().count();
-        CuckooFilter c(1000000,0.01, true);
-        end = Clock::now().time_since_epoch().count();
-        cout << "Initialisation:\n\n" << end - start << "(ns)" << endl;
-
-        c.Info();
-
-        start = Clock::now().time_since_epoch().count();
-        c.Add(1);
-        end = Clock::now().time_since_epoch().count();
-        cout << "Insertion of a single key:\n" << end - start << "(ns)" << endl;
     }
 }
 
@@ -117,9 +82,73 @@ void fpr_bpi() {
     }
 }
 
+void n_buildTime() {
+    CSVWriter csv("buildTime_n.csv");
+    int n = 10000;
+    double fpr = 0.01;
+
+    using Clock = high_resolution_clock;
+    long long start;
+    long long end;
+    double interval;
+
+    writeHeader(csv, {"FilterType", "n", "constTime", "fpr","iteration"});
+    for (int i = 0; i < 4; i++) {
+        start = Clock::now().time_since_epoch().count();
+        BloomFilter B(n,fpr, true);
+        end = Clock::now().time_since_epoch().count();
+        interval = static_cast<double> (((double)end - (double)start) / n);
+        write(csv, "Bloom", n, interval, fpr, -1, false);
+
+
+        start = Clock::now().time_since_epoch().count();
+        CuckooFilter C(n, fpr, true);
+        end = Clock::now().time_since_epoch().count();
+        interval = static_cast<double> (((double)end - (double)start) / n);
+        write(csv, "Cuckoo", n, interval, fpr, -1, false);
+
+        n *= 10;
+    }
+}
+
+void target_actual_fpr() {
+    CSVWriter csv("target_actual_fpr.csv");
+    int n = 2000000;
+    double fpr = 0.01;
+
+    writeHeader(csv, {"FilterType", "actual", "target", "n","iteration"});
+    for (int i = 0; i < 5; i++) {
+        BloomFilter B(n,fpr,false);
+        vector<uint64_t> keys = util::generateUniqueKeys(n);
+        int count = 0;
+        // Add half of the random generated keys
+        for (int i = 0; i < n / 2; i++) {
+            B.Add(keys[i]);
+        }
+        // Test false positive rate by querying the other half that hasn't been added
+        for (int i = n / 2; i < n; i++) {
+            if (B.Member(keys[i])) count++;
+        }
+        double actual =  (double)count / ((double)n / 2);
+        write(csv, "Bloom", actual, fpr, n, i, true);
+
+        CuckooFilter C(n, fpr, false);
+        count = 0;
+        for (int i = 0; i < n / 2; i++) {
+            C.Add(keys[i]);
+        }
+        // Test false positive rate by querying the other half that hasn't been added
+        for (int i = n / 2; i < n; i++) {
+            if (C.Member(keys[i])) count++;
+        }
+        write(csv, "Cuckoo", actual, fpr, n, i, true);
+    }
+}
+
 void benchmark() {
-    fpr_bpi();
-//    time();
+//    fpr_bpi();
+//    n_buildTime();
+    target_actual_fpr();
 }
 
 
