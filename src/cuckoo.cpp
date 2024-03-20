@@ -44,6 +44,7 @@ bool cuckooFilter::CuckooFilter::Add(const int &item) {
             new_pos ^= hasher(victim);
             if (data->HasEmptyEntry(util::fastRangeSize(new_pos, m))) {
                 data-> InsertTag(util::fastRangeSize(new_pos, m), fingerPrint, false, victim);
+                eviction++;
                 return true;
             } else continue;
         }

@@ -21,6 +21,8 @@ namespace cuckooFilter {
 
         hash_function::FingerPrinting fingerPrinter;
 
+        int eviction = 0;
+
         CuckooFilter(int n, double fpr, bool construct);
 
         ~CuckooFilter();

@@ -18,7 +18,9 @@ add_library(filters
         src/table.h
         src/cuckoo.h
         src/cuckoo.cpp
-#        src/xor.h
+        src/xorTable.h
+        src/xorTable.cpp
+        #        src/xor.h
 #        src/xor.cpp
 )
 

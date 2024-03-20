@@ -78,6 +78,8 @@ void fpr_bpi() {
         write(csv, "Bloom", n, fpr, B.Bpi(), -1, false);
         CuckooFilter C(n, fpr, true);
         write(csv, "Cuckoo", n, fpr, C.Bpi(), -1, false);
+
+        write(csv, "Lower Bound", n, fpr, log2(1/fpr), -1, false);
         fpr *= 10;
     }
 }
@@ -145,10 +147,19 @@ void target_actual_fpr() {
     }
 }
 
+void a() {
+    for (int i = 0; i < 100; i++) {
+        int n = 1000000;
+        CuckooFilter c (n, 0.01, true);
+        std::cout << c.eviction << std::endl;
+    }
+}
+
 void benchmark() {
 //    fpr_bpi();
 //    n_buildTime();
-    target_actual_fpr();
+//    target_actual_fpr();
+    a();
 }
 
 
