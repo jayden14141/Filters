@@ -8,6 +8,8 @@
 #include <string>
 #include <cstdint>
 #include <unordered_map>
+#include <stack>
+
 
 #include "hash_function.h"
 #include "util.h"
@@ -16,10 +18,11 @@ namespace xorFilter {
     class XorFilter {
     public:
         uint16_t *data;
-        hash_function::SimpleMixHashing hasher0;
-        hash_function::SimpleMixHashing hasher1;
-        hash_function::SimpleMixHashing hasher2;
+        hash_function::Ranged_SimpleMixHashing hasher0;
+        hash_function::Ranged_SimpleMixHashing hasher1;
+        hash_function::Ranged_SimpleMixHashing hasher2;
         hash_function::FingerPrinting fingerPrinter;
+        std::vector<uint64_t> keys;
 
         XorFilter(int n, double fpr, bool construct);
 
@@ -62,6 +65,10 @@ namespace xorFilter {
         size_t _getSize() const;
 
         void _insertKeys();
+
+        std::pair<bool, std::stack<std::pair<int, size_t>>> _map();
+
+        void _assign(std::stack<std::pair<int, size_t>> &sigma);
     };
 }
 

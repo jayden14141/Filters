@@ -13,12 +13,14 @@
 #include "../src/bloom.h"
 #include "../src/cuckoo.h"
 #include "../src/hash_function.h"
+#include "../src/xor.h"
 #include "../src/CSVWriter.h"
 
 using namespace std;
 using namespace hash_function;
 using namespace bloomFilter;
 using namespace cuckooFilter;
+using namespace xorFilter;
 using namespace chrono;
 
 //struct Sample {
@@ -148,11 +150,9 @@ void target_actual_fpr() {
 }
 
 void a() {
-    for (int i = 0; i < 100; i++) {
-        int n = 1000000;
-        CuckooFilter c (n, 0.01, true);
-        std::cout << c.eviction << std::endl;
-    }
+    int n = 10000;
+    XorFilter x (n, 0.01, true);
+    x.Info();
 }
 
 void benchmark() {

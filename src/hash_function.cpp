@@ -3,6 +3,7 @@
 //
 
 #include "hash_function.h"
+#include "util.h"
 
 namespace hash_function {
     SimpleMixHashing::SimpleMixHashing() {
@@ -50,5 +51,14 @@ namespace hash_function {
     uint64_t FingerPrinting::operator()(uint64_t key) const {
         uint64_t hash = murmur64(key + seed);
         return trimToOutputBits(hash);
+    }
+
+    Ranged_SimpleMixHashing::Ranged_SimpleMixHashing() {}
+
+    Ranged_SimpleMixHashing::Ranged_SimpleMixHashing(uint64_t start, uint64_t size) : start(start), size(size) {}
+
+    uint64_t Ranged_SimpleMixHashing::operator()(uint64_t key) const {
+        uint64_t hashed = hasher(key);
+        return start + util::fastRange64(hashed, size);
     }
 }

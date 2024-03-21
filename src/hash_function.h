@@ -36,5 +36,15 @@ namespace hash_function {
         static uint64_t murmur64(uint64_t h);
         uint64_t trimToOutputBits(uint64_t hash) const;
     };
+
+    class Ranged_SimpleMixHashing {
+    public:
+        SimpleMixHashing hasher;
+        uint64_t start;
+        uint64_t size;
+        Ranged_SimpleMixHashing();
+        Ranged_SimpleMixHashing(uint64_t start, uint64_t size);
+        uint64_t operator()(uint64_t key) const;
+    };
 }
 #endif //FILTERS_HASH_FUNCTION_H

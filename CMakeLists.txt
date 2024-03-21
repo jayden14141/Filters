@@ -18,10 +18,8 @@ add_library(filters
         src/table.h
         src/cuckoo.h
         src/cuckoo.cpp
-        src/xorTable.h
-        src/xorTable.cpp
-        #        src/xor.h
-#        src/xor.cpp
+        src/xor.h
+        src/xor.cpp
 )
 
 if (MSVC)
