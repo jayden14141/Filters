@@ -9,6 +9,8 @@
 #include <cstdint>
 #include <unordered_map>
 #include <stack>
+#include <vector>
+#include <unordered_set>
 
 
 #include "hash_function.h"
@@ -29,7 +31,7 @@ namespace xorFilter {
         ~XorFilter();
 
         // Add an item to a filter
-        void Add(const int &item);
+        void Add(std::vector<uint64_t> &keys);
 
         // Tell if the item is in the filter
         bool Member(const int &item) const;
@@ -48,7 +50,7 @@ namespace xorFilter {
         // (Size * 64 / n)
         double bits_per_item;
 
-        // Size of the the fingerprint function
+        // Size of the fingerprint function
         int f;
 
         // Number of keys inserted
@@ -66,9 +68,9 @@ namespace xorFilter {
 
         void _insertKeys();
 
-        std::pair<bool, std::stack<std::pair<int, size_t>>> _map();
+        bool _map(std::vector<std::pair<uint64_t, size_t>> &sigma, std::unordered_set<uint64_t> &processed);
 
-        void _assign(std::stack<std::pair<int, size_t>> &sigma);
+        void _assign(const std::vector<std::pair<uint64_t , size_t>> &sigma);
     };
 }
 

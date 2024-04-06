@@ -4,6 +4,7 @@
 
 #include "../src/bloom.h"
 #include "../src/cuckoo.h"
+#include "../src/xor.h"
 #include "../src/table.h"
 #include "../src/hash_function.h"
 #include <iostream>
@@ -17,6 +18,7 @@ using namespace std;
 using namespace hash_function;
 using namespace bloomFilter;
 using namespace cuckooFilter;
+using namespace xorFilter;
 
 void test_fpr() {
     int n = 1000000;
@@ -110,16 +112,39 @@ void test_cuckoo() {
     std::cout << std::boolalpha << c.Member(two) << std::endl;
 }
 
+void test_xor() {
+    std::vector<uint64_t> k = util::generateUniqueKeys(20);
+    std::vector<uint64_t> inserted;
+    for (int i = 0; i < 10; i++) {
+        inserted.push_back(k[i]);
+    }
+    XorFilter x(10, 0.01, false);
+    std::cout << "Size:" << x.Size() << std::endl;
+
+    std::cout << "Querying item 1:" << std::endl;
+    std::cout << std::boolalpha << x.Member(k[10]) << std::endl;
+
+    std::cout << "Querying item 2:" << std::endl;
+    std::cout << std::boolalpha << x.Member(k[0]) << std::endl;
+
+    std::cout << "Adding item 2" << std::endl;
+    x.Add(inserted);
+
+    std::cout << "Querying item 2:" << std::endl;
+    std::cout << std::boolalpha << x.Member(k[0]) << std::endl;
+}
+
 void test_correctness() {
 //    test_bloom();
-    test_cuckoo();
+//    test_cuckoo();
+    test_xor();
 }
 
 
 int main() {
 //    test_hash();
-//    test_correctness();
-    test_fpr();
+    test_correctness();
+//    test_fpr();
 //    test_fnr();
     return 0;
 }

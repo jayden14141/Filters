@@ -81,6 +81,11 @@ void fpr_bpi() {
         CuckooFilter C(n, fpr, true);
         write(csv, "Cuckoo", n, fpr, C.Bpi(), -1, false);
 
+        float xor_bpi = ceil((1.23*n*ceil(log2(1/fpr)) + 32*16) / n);
+        write(csv, "XOR", n, fpr, xor_bpi, -1, false);
+
+
+
         write(csv, "Lower Bound", n, fpr, log2(1/fpr), -1, false);
         fpr *= 10;
     }
@@ -98,18 +103,26 @@ void n_buildTime() {
 
     writeHeader(csv, {"FilterType", "n", "constTime", "fpr","iteration"});
     for (int i = 0; i < 4; i++) {
-        start = Clock::now().time_since_epoch().count();
-        BloomFilter B(n,fpr, true);
-        end = Clock::now().time_since_epoch().count();
-        interval = static_cast<double> (((double)end - (double)start) / n);
-        write(csv, "Bloom", n, interval, fpr, -1, false);
+        for (int j = 1; j <= 5; j++) {
+            start = Clock::now().time_since_epoch().count();
+            BloomFilter B(n,fpr, true);
+            end = Clock::now().time_since_epoch().count();
+            interval = static_cast<double> (((double)end - (double)start) / n);
+            write(csv, "Bloom", n, interval, fpr, j, true);
 
 
-        start = Clock::now().time_since_epoch().count();
-        CuckooFilter C(n, fpr, true);
-        end = Clock::now().time_since_epoch().count();
-        interval = static_cast<double> (((double)end - (double)start) / n);
-        write(csv, "Cuckoo", n, interval, fpr, -1, false);
+            start = Clock::now().time_since_epoch().count();
+            CuckooFilter C(n, fpr, true);
+            end = Clock::now().time_since_epoch().count();
+            interval = static_cast<double> (((double)end - (double)start) / n);
+            write(csv, "Cuckoo", n, interval, fpr, j, true);
+        }
+//
+//        start = Clock::now().time_since_epoch().count();
+//        XorFilter X(10000, fpr, true);
+//        end = Clock::now().time_since_epoch().count();
+//        interval = static_cast<double> (((double)end - (double)start) / 10000);
+//        write(csv, "Xor", n, interval, fpr, -1, false);
 
         n *= 10;
     }
@@ -150,8 +163,8 @@ void target_actual_fpr() {
 }
 
 void a() {
-    int n = 10000;
-    XorFilter x (n, 0.01, true);
+    int n = 100;
+    XorFilter x(n, 0.01, true);
     x.Info();
 }
 
