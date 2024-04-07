@@ -71,7 +71,7 @@ void test_hash() {
 }
 
 void test_bloom() {
-    BloomFilter b(100000000,0.01, true);
+    BloomFilter b(10000000,0.01, true);
     std::cout << "Size:" << b.Size() << std::endl;
     std::cout << "Adding item 1" << std::endl;
     int one = random();
@@ -135,9 +135,9 @@ void test_xor() {
 }
 
 void test_correctness() {
-//    test_bloom();
+    test_bloom();
 //    test_cuckoo();
-    test_xor();
+//    test_xor();
 }
 
 

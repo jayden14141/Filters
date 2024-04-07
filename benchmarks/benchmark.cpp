@@ -163,7 +163,7 @@ void target_actual_fpr() {
 }
 
 void a() {
-    int n = 100;
+    int n = 1000000;
     XorFilter x(n, 0.01, true);
     x.Info();
 }

@@ -29,6 +29,10 @@ size_t util::fastRangeSize(size_t word, size_t p) {
     return (size_t)util::fastRange64(word, p);
 }
 
+int util::fastRangeInt(size_t word, size_t p) {
+    return (int)util::fastRange64(word, p);
+}
+
 
 // Generates large amount of unique keys without collision
 std::vector<uint64_t> util::generateUniqueKeys(size_t count) {

@@ -34,7 +34,7 @@ namespace xorFilter {
         void Add(std::vector<uint64_t> &keys);
 
         // Tell if the item is in the filter
-        bool Member(const int &item) const;
+        bool Member(const uint64_t &item) const;
 
         // Return the size of the filter in bits
         size_t Size() const;
@@ -43,6 +43,7 @@ namespace xorFilter {
         double Fpr() const;
 
         void Info() const;
+
     private:
         // Size of the array itself
         size_t size;
@@ -59,8 +60,12 @@ namespace xorFilter {
         // False Positive Rate
         double fpr;
 
-        // Get values that solely owns the slot.
-        std::unordered_map<size_t,uint16_t> _getSingleElements();
+        struct hashDist {
+            uint64_t hashValue;
+            uint64_t count;
+        };
+
+        typedef struct hashDist hashDist;
 
         int _getF() const;
 
@@ -68,9 +73,11 @@ namespace xorFilter {
 
         void _insertKeys();
 
-        bool _map(std::vector<std::pair<uint64_t, size_t>> &sigma, std::unordered_set<uint64_t> &processed);
+        bool _map(std::vector<std::pair<uint64_t, size_t>> &sigma);
 
         void _assign(const std::vector<std::pair<uint64_t , size_t>> &sigma);
+
+        void _newHash();
     };
 }
 
