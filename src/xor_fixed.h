@@ -2,8 +2,8 @@
 // Created by Jayden on 03/03/2024.
 //
 
-#ifndef FILTERS_XOR_H
-#define FILTERS_XOR_H
+#ifndef FILTERS_XOR_FIXED_H
+#define FILTERS_XOR_FIXED_H
 
 #include <string>
 #include <cstdint>
@@ -11,13 +11,15 @@
 #include <stack>
 #include <vector>
 #include <unordered_set>
+#include <mutex>
+#include <atomic>
 
 
 #include "hash_function.h"
 #include "util.h"
 
 namespace xorFilter {
-    class XorFilter {
+    class XorFilter_fixed {
     public:
         uint16_t *data;
         hash_function::Ranged_SimpleMixHashing hasher0;
@@ -26,9 +28,9 @@ namespace xorFilter {
         hash_function::FingerPrinting fingerPrinter;
         std::vector<uint64_t> keys;
 
-        XorFilter(int n, double fpr, bool construct);
+        XorFilter_fixed(int n, double fpr, bool construct);
 
-        ~XorFilter();
+        ~XorFilter_fixed();
 
         // Add an item to a filter
         void Add(std::vector<uint64_t> &keys);
@@ -86,4 +88,4 @@ namespace xorFilter {
 }
 
 
-#endif //FILTERS_XOR_H
+#endif //FILTERS_XOR_FIXED_H

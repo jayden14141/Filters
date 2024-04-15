@@ -52,6 +52,12 @@ bool cuckooFilter::CuckooFilter::Add(const int &item) {
     }
 }
 
+bool cuckooFilter::CuckooFilter::AddAll(std::vector<uint64_t> &keys) {
+    for (int i = 0; i < n; i++) {
+        Add((int)keys[i]);
+    }
+}
+
 bool cuckooFilter::CuckooFilter::Member(const int &item) const {
     uint64_t hashed_one = hasher(item);
     size_t fingerPrint = fingerPrinter(item);

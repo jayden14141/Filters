@@ -41,6 +41,12 @@ void BloomFilter::Add(const int &item) {
     }
 }
 
+void BloomFilter::AddAll(std::vector<uint64_t> &keys) {
+    for (int i = 0; i < n; i++) {
+        Add((int)keys[i]);
+    }
+}
+
 bool BloomFilter::Member(const int &item) const {
 //    int some = std::stoi(item);
     uint64_t hashed = hasher(item);

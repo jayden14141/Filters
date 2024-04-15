@@ -3,6 +3,7 @@
 //
 
 #include "../src/bloom.h"
+#include "../src/blocked_bloom.h"
 #include "../src/cuckoo.h"
 #include "../src/xor.h"
 #include "../src/table.h"
@@ -16,19 +17,22 @@
 
 using namespace std;
 using namespace hash_function;
+using namespace blockedBloomFilter;
 using namespace bloomFilter;
 using namespace cuckooFilter;
 using namespace xorFilter;
 
 void test_fpr() {
-    int n = 1000000;
+    int n = 1000;
     for (int j = 0; j < 5; j++) {
-        BloomFilter c(n,0.01, false);
+        XorFilter c(n,0.01, false);
         vector<uint64_t> keys = util::generateUniqueKeys(n);
+        vector<uint64_t> added;
+        for (int i = 0; i < n / 2; i++) added.push_back(keys[i]);
         int count = 0;
         // Add half of the random generated keys
         for (int i = 0; i < n / 2; i++) {
-            c.Add(keys[i]);
+            c.AddAll(added);
         }
 
         // Test false positive rate by querying the other half that hasn't been added
@@ -143,8 +147,8 @@ void test_correctness() {
 
 int main() {
 //    test_hash();
-    test_correctness();
-//    test_fpr();
+//    test_correctness();
+    test_fpr();
 //    test_fnr();
     return 0;
 }

@@ -31,6 +31,7 @@ namespace hash_function {
         this->outputBit = bit;
     }
 
+    // https://github.com/aappleby/smhasher/tree/master
     uint64_t FingerPrinting::murmur64(uint64_t h) {
         h ^= h >> 33;
         h *= UINT64_C(0xff51afd7ed558ccd);

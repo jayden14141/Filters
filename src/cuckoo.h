@@ -30,6 +30,9 @@ namespace cuckooFilter {
         // Add an item to a filter
         bool Add(const int &item);
 
+        // Add bulk items from given vector of keys
+        bool AddAll(std::vector<uint64_t> &keys);
+
         // Tell if the item is in the filter
         bool Member(const int &item) const;
 

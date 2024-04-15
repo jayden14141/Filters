@@ -20,6 +20,9 @@ add_library(filters
         src/cuckoo.cpp
         src/xor.h
         src/xor.cpp
+        src/blocked_bloom.h
+        src/blocked_bloom.cpp
+        src/xor_fixed.cpp
 )
 
 if (MSVC)

@@ -11,14 +11,17 @@
 #include <unistd.h>
 
 #include "../src/bloom.h"
+#include "../src/blocked_bloom.h"
 #include "../src/cuckoo.h"
 #include "../src/hash_function.h"
 #include "../src/xor.h"
+#include "../src/xor_fixed.h"
 #include "../src/CSVWriter.h"
 
 using namespace std;
 using namespace hash_function;
 using namespace bloomFilter;
+using namespace blockedBloomFilter;
 using namespace cuckooFilter;
 using namespace xorFilter;
 using namespace chrono;
@@ -76,13 +79,12 @@ void fpr_bpi() {
 
     writeHeader(csv, {"FilterType", "n", "fpr", "bpi","iteration"});
     for (int i = 0; i < 4; i++) {
-        BloomFilter B(n,fpr,true);
+        BloomFilter B(n,fpr,false);
         write(csv, "Bloom", n, fpr, B.Bpi(), -1, false);
-        CuckooFilter C(n, fpr, true);
+        CuckooFilter C(n, fpr, false);
         write(csv, "Cuckoo", n, fpr, C.Bpi(), -1, false);
-
-        float xor_bpi = ceil((1.23*n*ceil(log2(1/fpr)) + 32*16) / n);
-        write(csv, "XOR", n, fpr, xor_bpi, -1, false);
+        XorFilter X(n, fpr, false);
+        write(csv, "Xor", n, fpr, X.Bpi(), -1, false);
 
 
 
@@ -104,25 +106,31 @@ void n_buildTime() {
     writeHeader(csv, {"FilterType", "n", "constTime", "fpr","iteration"});
     for (int i = 0; i < 4; i++) {
         for (int j = 1; j <= 5; j++) {
+            std::vector<uint64_t> keys = util::generateUniqueKeys(n);
+            BloomFilter B(n,fpr, false);
+            CuckooFilter C(n, fpr, false);
+            BlockedBloom BB(n, fpr, false);
+//            XorFilter X(n, fpr, false);
+
             start = Clock::now().time_since_epoch().count();
-            BloomFilter B(n,fpr, true);
+            B.AddAll(keys);
             end = Clock::now().time_since_epoch().count();
             interval = static_cast<double> (((double)end - (double)start) / n);
             write(csv, "Bloom", n, interval, fpr, j, true);
 
 
             start = Clock::now().time_since_epoch().count();
-            CuckooFilter C(n, fpr, true);
+            C.AddAll(keys);
             end = Clock::now().time_since_epoch().count();
             interval = static_cast<double> (((double)end - (double)start) / n);
             write(csv, "Cuckoo", n, interval, fpr, j, true);
+
+            start = Clock::now().time_since_epoch().count();
+            BB.AddAll(keys);
+            end = Clock::now().time_since_epoch().count();
+            interval = static_cast<double> (((double)end - (double)start) / n);
+            write(csv, "Blocked Bloom", n, interval, fpr, j, true);
         }
-//
-//        start = Clock::now().time_since_epoch().count();
-//        XorFilter X(10000, fpr, true);
-//        end = Clock::now().time_since_epoch().count();
-//        interval = static_cast<double> (((double)end - (double)start) / 10000);
-//        write(csv, "Xor", n, interval, fpr, -1, false);
 
         n *= 10;
     }
@@ -162,17 +170,77 @@ void target_actual_fpr() {
     }
 }
 
-void a() {
+void c() {
+    int n = 10000000;
+    double fpr = 0.01;
+    using Clock = high_resolution_clock;
+    long long start;
+    long long end;
+    double interval;
+
+    for (int i = 0; i < 2; i ++) {
+        BloomFilter B(n, fpr, false);
+        BlockedBloom BB(n, fpr, false);
+        std::vector<uint64_t> keys = util::generateUniqueKeys(n);
+
+        start = Clock::now().time_since_epoch().count();
+        B.AddAll(keys);
+        end = Clock::now().time_since_epoch().count();
+        interval = static_cast<double> (((double)end - (double)start) / n);
+        std::cout << "Bloom: " << interval << std::endl;
+
+        start = Clock::now().time_since_epoch().count();
+        BB.AddAll(keys);
+        end = Clock::now().time_since_epoch().count();
+        interval = static_cast<double> (((double)end - (double)start) / n);
+        std::cout << "Blocked Bloom: " << interval << std::endl;
+    }
+}
+
+void b() {
     int n = 1000000;
-    XorFilter x(n, 0.01, true);
-    x.Info();
+    double fpr = 0.01;
+    BlockedBloom BB(n, fpr, false);
+    std::vector<uint64_t> keys = util::generateUniqueKeys(n);
+    BB.AddAll(keys);
+}
+
+void a() {
+//    int n = 1000000;
+//    XorFilter x(n, 0.01, true);
+//    x.Info();
+    int n = 10000;
+    double fpr = 0.01;
+
+    using Clock = high_resolution_clock;
+    long long start;
+    long long end;
+    double interval;
+    std::vector<uint64_t> keys = util::generateUniqueKeys(n);
+    XorFilter X(n, fpr, false);
+    XorFilter_fixed XF(n, fpr, false);
+
+
+    start = Clock::now().time_since_epoch().count();
+    X.AddAll(keys);
+    end = Clock::now().time_since_epoch().count();
+    interval = static_cast<double> (((double)end - (double)start) / n);
+    std::cout << interval << std::endl;
+
+    start = Clock::now().time_since_epoch().count();
+    XF.AddAll(keys);
+    end = Clock::now().time_since_epoch().count();
+    interval = static_cast<double> (((double)end - (double)start) / n);
+    std::cout << interval << std::endl;
 }
 
 void benchmark() {
 //    fpr_bpi();
 //    n_buildTime();
 //    target_actual_fpr();
-    a();
+//    a();
+//    b();
+    c();
 }
 
 

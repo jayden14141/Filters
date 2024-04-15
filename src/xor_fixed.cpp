@@ -8,11 +8,14 @@
 #include <queue>
 #include <iostream>
 #include <unordered_set>
+#include <thread>
+#include <mutex>
+#include <atomic>
 
-#include "xor.h"
+#include "xor_fixed.h"
 #include "util.h"
 
-xorFilter::XorFilter::XorFilter(int n, double fpr, bool construct) : n(n), fpr(fpr) {
+xorFilter::XorFilter_fixed::XorFilter_fixed(int n, double fpr, bool construct) : n(n), fpr(fpr) {
     this->f = _getF();
     fingerPrinter.set(f);
     this->size = _getSize();
@@ -26,21 +29,21 @@ xorFilter::XorFilter::XorFilter(int n, double fpr, bool construct) : n(n), fpr(f
     }
 }
 
-xorFilter::XorFilter::~XorFilter() {
+xorFilter::XorFilter_fixed::~XorFilter_fixed() {
     delete[] data;
 }
 
-void xorFilter::XorFilter::Add(std::vector<uint64_t> &keys) {
+void xorFilter::XorFilter_fixed::Add(std::vector<uint64_t> &keys) {
     this->keys = keys;
     _insertKeys();
 }
 
-void xorFilter::XorFilter::AddAll(std::vector<uint64_t> &keys) {
+void xorFilter::XorFilter_fixed::AddAll(std::vector<uint64_t> &keys) {
     this->keys = keys;
     _insertKeys();
 }
 
-bool xorFilter::XorFilter::Member(const uint64_t &item) const {
+bool xorFilter::XorFilter_fixed::Member(const uint64_t &item) const {
     uint16_t finger = fingerPrinter(item);
     uint16_t h0 = hasher0(item);
     uint16_t h1 = hasher1(item);
@@ -48,19 +51,19 @@ bool xorFilter::XorFilter::Member(const uint64_t &item) const {
     return finger == (data[h0] ^ data[h1] ^ data[h2]);
 }
 
-size_t xorFilter::XorFilter::Size() const {
+size_t xorFilter::XorFilter_fixed::Size() const {
     return size*f;
 }
 
-double xorFilter::XorFilter::Fpr() const {
+double xorFilter::XorFilter_fixed::Fpr() const {
     return fpr;
 }
 
-double xorFilter::XorFilter::Bpi() const {
+double xorFilter::XorFilter_fixed::Bpi() const {
     return bits_per_item;
 }
 
-void xorFilter::XorFilter::Info() const {
+void xorFilter::XorFilter_fixed::Info() const {
     std::cout << "XOR Filter" << std::endl;
     std::cout << "------------------------------- \n" << std::endl;
     std::cout << "Number of keys inserted  : " << n << std::endl;
@@ -72,15 +75,15 @@ void xorFilter::XorFilter::Info() const {
     std::cout << "Space overhead : " << 100 * (bits_per_item - log2(1/fpr)) / log2(1/fpr) << "% " << std::endl;
 }
 
-int xorFilter::XorFilter::_getF() const {
+int xorFilter::XorFilter_fixed::_getF() const {
     return ceil(log2(1/fpr));
 }
 
-size_t xorFilter::XorFilter::_getSize() const {
+size_t xorFilter::XorFilter_fixed::_getSize() const {
     return ceil(1.23*n + 32);
 }
 
-void xorFilter::XorFilter::_insertKeys() {
+void xorFilter::XorFilter_fixed::_insertKeys() {
     std::vector<std::pair<uint64_t, size_t>> sigma;
     sigma.reserve(n);
     bool success = false;
@@ -100,9 +103,10 @@ void xorFilter::XorFilter::_insertKeys() {
 //    }
 }
 
-bool xorFilter::XorFilter::_map(std::vector<std::pair<uint64_t, size_t>> &sigma) {
+bool xorFilter::XorFilter_fixed::_map(std::vector<std::pair<uint64_t, size_t>> &sigma) {
     std::vector<std::unordered_set<uint64_t>> H(size);
-    std::queue<size_t> queue;
+    bool init = false;
+    std::vector<size_t> initLone;
 
     for (const uint64_t &key: keys) {
         uint64_t h0 = hasher0(key);
@@ -114,27 +118,44 @@ bool xorFilter::XorFilter::_map(std::vector<std::pair<uint64_t, size_t>> &sigma)
     }
 
     for (size_t i = 0; i < H.size(); i++) {
-        if (H[i].size() == 1) {
-            queue.push(i);
-        }
+        if (H[i].size() == 1) initLone.push_back(i);
     }
 
-    while (!queue.empty()) {
-        size_t i = queue.front();
-        queue.pop();
-        if (H[i].size() == 1) {
-            uint64_t x = *H[i].begin();
-            sigma.emplace_back(x, i);
-            for (auto &h: {hasher0(x), hasher1(x), hasher2(x)}) {
-                H[h].erase(x);
-                if (H[h].size() == 1) queue.push(h);
+    for (int start = 0; start < initLone.size(); start++) {
+        std::queue<size_t> queue;
+        std::vector<std::pair<uint64_t, size_t>> tmpSigma;
+        std::vector<std::unordered_set<uint64_t>> tempH = H;
+        if (tempH[initLone[start]].size() == 1) {
+            queue.push(initLone[start]);
+        }
+
+        for (size_t idx : initLone) {
+            if (idx != initLone[start]) {
+                if (tempH[idx].size() == 1) queue.push(idx);
             }
         }
+
+        while (!queue.empty()) {
+            size_t i = queue.front();
+            queue.pop();
+            if (tempH[i].size() == 1) {
+                uint64_t x = *tempH[i].begin();
+                tmpSigma.emplace_back(x, i);
+                for (auto &h: {hasher0(x), hasher1(x), hasher2(x)}) {
+                    tempH[h].erase(x);
+                    if (tempH[h].size() == 1) queue.push(h);
+                }
+            }
+        }
+        if (sigma.size() == keys.size()) {
+            sigma = std::move(tmpSigma);
+            return true;
+        }
     }
-    return sigma.size() == keys.size();
+    return false;
 }
 
-void xorFilter::XorFilter::_assign(const std::vector<std::pair<uint64_t, size_t>> &sigma) {
+void xorFilter::XorFilter_fixed::_assign(const std::vector<std::pair<uint64_t, size_t>> &sigma) {
     for (const auto &[x, i]: sigma) {
         data[i] = 0;
         uint64_t finger = fingerPrinter(x);
@@ -142,7 +163,7 @@ void xorFilter::XorFilter::_assign(const std::vector<std::pair<uint64_t, size_t>
     }
 }
 
-void xorFilter::XorFilter::_newHash() {
+void xorFilter::XorFilter_fixed::_newHash() {
     hasher0 = hash_function::Ranged_SimpleMixHashing(0,size/3);
     hasher1 = hash_function::Ranged_SimpleMixHashing(size/3,size/3);
     hasher2 = hash_function::Ranged_SimpleMixHashing(2*size/3,size/3);

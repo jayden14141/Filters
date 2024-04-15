@@ -1,34 +1,39 @@
 //
-// Created by Jayden on 11/02/2024.
+// Created by Jayden on 09/04/2024.
 //
 
-#ifndef FILTERS_BLOOM_H
-#define FILTERS_BLOOM_H
+#ifndef FILTERS_BLOCKED_BLOOM_H
+#define FILTERS_BLOCKED_BLOOM_H
 
-#include <string>
-#include <cstdint>
-#include "hash_function.h"
+#include "bloom.h"
 #include "util.h"
+#include "hash_function.h"
 
-namespace bloomFilter {
+#include <cstdlib>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <cstdint>
+#include <algorithm>
+#include <Accelerate/Accelerate.h>
+#include <arm_neon.h>
 
-    class BloomFilter {
+namespace blockedBloomFilter {
+    class BlockedBloom {
     public:
-        uint64_t *data;
-        hash_function::SimpleMixHashing hasher;
 
-        BloomFilter(int n, double fpr, bool construct);
+        BlockedBloom(int n, double fpr, bool construct);
 
-        ~BloomFilter();
+        ~BlockedBloom();
 
         // Add an item to a filter
-        void Add(const int &item);
+        void Add(const uint64_t &item);
 
         // Add bulk items from given vector of keys
         void AddAll(std::vector<uint64_t> &keys);
 
         // Tell if the item is in the filter
-        bool Member(const int &item) const;
+        bool Member(const uint64_t &item);
 
         // Return the size of the filter in bits
         size_t Size() const;
@@ -40,6 +45,15 @@ namespace bloomFilter {
 
         void Info() const;
     private:
+
+        using Bucket = uint16x8_t;
+
+        int bucketCount;
+
+        Bucket* buckets;
+
+        hash_function::SimpleMixHashing hasher;
+
         // Size of the array itself
         size_t size;
 
@@ -55,7 +69,9 @@ namespace bloomFilter {
         // False Positive Rate
         double fpr;
 
-        size_t _getM() const;
+        uint16x8_t _makeMask(const uint16_t hashed);
+
+        double _getBpi() const;
 
         size_t _getSize() const;
 
@@ -63,5 +79,5 @@ namespace bloomFilter {
     };
 }
 
-#endif //FILTERS_BLOOM_H
 
+#endif //FILTERS_BLOCKED_BLOOM_H
