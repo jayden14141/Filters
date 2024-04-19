@@ -23,7 +23,7 @@ cuckooFilter::CuckooFilter::~CuckooFilter() {
     delete data;
 }
 
-bool cuckooFilter::CuckooFilter::Add(const int &item) {
+bool cuckooFilter::CuckooFilter::Add(const uint64_t &item) {
     uint64_t hashed_one = hasher(item);
     size_t fingerPrint = fingerPrinter(item);
     uint64_t hashed_two = hasher(fingerPrint);
@@ -53,12 +53,12 @@ bool cuckooFilter::CuckooFilter::Add(const int &item) {
 }
 
 bool cuckooFilter::CuckooFilter::AddAll(std::vector<uint64_t> &keys) {
-    for (int i = 0; i < n; i++) {
-        Add((int)keys[i]);
+    for (int i = 0; i < keys.size(); i++) {
+        Add(keys[i]);
     }
 }
 
-bool cuckooFilter::CuckooFilter::Member(const int &item) const {
+bool cuckooFilter::CuckooFilter::Member(const uint64_t &item) const {
     uint64_t hashed_one = hasher(item);
     size_t fingerPrint = fingerPrinter(item);
     uint64_t hashed_two = hasher(fingerPrint);

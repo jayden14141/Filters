@@ -29,7 +29,7 @@ BloomFilter::~BloomFilter() {
     delete []data;
 }
 
-void BloomFilter::Add(const int &item) {
+void BloomFilter::Add(const uint64_t &item) {
     // TODO: Implement the string hashing
 //    int some = std::stoi(item);
     uint64_t hashed = hasher(item);
@@ -42,12 +42,12 @@ void BloomFilter::Add(const int &item) {
 }
 
 void BloomFilter::AddAll(std::vector<uint64_t> &keys) {
-    for (int i = 0; i < n; i++) {
-        Add((int)keys[i]);
+    for (int i = 0; i < keys.size(); i++) {
+        Add(keys[i]);
     }
 }
 
-bool BloomFilter::Member(const int &item) const {
+bool BloomFilter::Member(const uint64_t &item) const {
 //    int some = std::stoi(item);
     uint64_t hashed = hasher(item);
     uint64_t a = (hashed >> 32) | (hashed << 32);

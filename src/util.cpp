@@ -3,6 +3,7 @@
 //
 
 #include <cstdlib>
+#include <unordered_set>
 #include "util.h"
 
 // Calculates the modulo operation in a faster way
@@ -39,14 +40,22 @@ std::vector<uint64_t> util::generateUniqueKeys(size_t count) {
     std::vector<uint64_t> keys;
     keys.reserve(count);
 
+    std::unordered_set<uint64_t> seenKeys;
+    seenKeys.reserve(count);
+
     std::random_device rd;
     std::mt19937_64 gen(rd());
     std::uniform_int_distribution<uint64_t> dis;
 
-    for (size_t i = 0; i < count; ++i) {
+    while (keys.size() < count) {
         uint64_t key = dis(gen);
-        keys.push_back(key);
+        if (seenKeys.insert(key).second) {
+            keys.push_back(key);
+        }
     }
+//
+//    for (size_t i = 0; i < count; ++i) {
+//    }
 
     return keys;
 }

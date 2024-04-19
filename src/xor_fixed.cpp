@@ -147,7 +147,7 @@ bool xorFilter::XorFilter_fixed::_map(std::vector<std::pair<uint64_t, size_t>> &
                 }
             }
         }
-        if (sigma.size() == keys.size()) {
+        if (tmpSigma.size() == keys.size()) {
             sigma = std::move(tmpSigma);
             return true;
         }

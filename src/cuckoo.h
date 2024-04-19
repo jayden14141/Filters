@@ -28,13 +28,13 @@ namespace cuckooFilter {
         ~CuckooFilter();
 
         // Add an item to a filter
-        bool Add(const int &item);
+        bool Add(const uint64_t &item);
 
         // Add bulk items from given vector of keys
         bool AddAll(std::vector<uint64_t> &keys);
 
         // Tell if the item is in the filter
-        bool Member(const int &item) const;
+        bool Member(const uint64_t &item) const;
 
         // Return the size of the filter in bits
         size_t Size() const;

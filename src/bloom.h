@@ -21,14 +21,17 @@ namespace bloomFilter {
 
         ~BloomFilter();
 
+        // Number of hash functions used
+        int m;
+
         // Add an item to a filter
-        void Add(const int &item);
+        void Add(const uint64_t &item);
 
         // Add bulk items from given vector of keys
         void AddAll(std::vector<uint64_t> &keys);
 
         // Tell if the item is in the filter
-        bool Member(const int &item) const;
+        bool Member(const uint64_t &item) const;
 
         // Return the size of the filter in bits
         size_t Size() const;
@@ -45,9 +48,6 @@ namespace bloomFilter {
 
         // (Size * 64 / n)
         double bits_per_item;
-
-        // Number of hash functions used
-        int m;
 
         // Number of keys inserted
         int n;
