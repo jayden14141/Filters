@@ -4,6 +4,7 @@
 
 #include <cstdlib>
 #include <unordered_set>
+#include <fstream>
 #include "util.h"
 
 // Calculates the modulo operation in a faster way
@@ -53,9 +54,34 @@ std::vector<uint64_t> util::generateUniqueKeys(size_t count) {
             keys.push_back(key);
         }
     }
-//
-//    for (size_t i = 0; i < count; ++i) {
-//    }
+    return keys;
+}
 
+void util::saveKeys(const std::string &filename, size_t count) {
+    std::vector<uint64_t> keys = generateUniqueKeys(count);
+    std::string baseDir = "./out/";
+    std::filesystem::create_directories(baseDir);
+    std::string filePath = baseDir + filename;
+    std::ofstream out(filePath, std::ios::binary);
+    if (!out.is_open()) {
+        throw std::runtime_error("Cannot open file");
+    }
+    for (auto& key: keys) {
+        out.write(reinterpret_cast<const char*>(&key), sizeof(uint64_t));
+    }
+    out.close();
+}
+
+std::vector<uint64_t> util::loadKeys(const std::string &filename, size_t count) {
+    std::vector<uint64_t> keys(count);
+    std::string baseDir = "./out/";
+    std::filesystem::create_directories(baseDir);
+    std::string filePath = baseDir + filename;
+    std::ifstream in(filePath, std::ios::binary);
+    if (!in.is_open()) {
+        throw std::runtime_error("Cannot open file");
+    }
+    in.read(reinterpret_cast<char*>(keys.data()), count * sizeof(uint64_t));
+    in.close();
     return keys;
 }

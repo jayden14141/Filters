@@ -17,6 +17,8 @@ public:
     static size_t fastRangeSize(size_t word, size_t p);
     static int fastRangeInt(size_t word, size_t p);
     static std::vector<uint64_t> generateUniqueKeys(size_t count);
+    static void saveKeys(const std::string& filename, size_t count);
+    static std::vector<uint64_t> loadKeys(const std::string& filename, size_t count);
 };
 
 

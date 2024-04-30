@@ -87,13 +87,12 @@ void fpr_bpi() {
         write(csv, "Xor", n, fpr, X.Bpi(), -1, false);
 
 
-
         write(csv, "Lower Bound", n, fpr, log2(1/fpr), -1, false);
         fpr *= 10;
     }
 }
 
-void _bloom_m_fpr() {
+void bloom_m_fpr() {
     CSVWriter csv("bloom_m_fpr.csv");
     vector<double> targetFpr = {0.001, 0.005, 0.01, 0.05, 0.1, 0.5};
     vector<int> m_var = {-2, -1, 0, 1, 2};
@@ -144,18 +143,16 @@ void lf_posQueryTime() {
 
     writeHeader(csv, {"FilterType", "lf", "queryTime", "n","iteration"});
     for (int i = 0; i < 5; i++) {
-        for (int j = 1; j <= 1; j++) {
+        for (int j = 1; j <= 10; j++) {
             BloomFilter B(n,fpr, false);
             CuckooFilter C(n, fpr, false);
             BlockedBloom BB(n, fpr, false);
             XorFilter X(n, fpr, false);
-            XorFilter_fixed XF(n, fpr, false);
 
             B.AddAll(keyLf[i]);
             C.AddAll(keyLf[i]);
             BB.AddAll(keyLf[i]);
             X.AddAll(keyLf[i]);
-            XF.AddAll(keyLf[i]);
 
             start = Clock::now().time_since_epoch().count();
             for (int t = 0; t < k; t++) B.Member(keys[t]);
@@ -181,12 +178,6 @@ void lf_posQueryTime() {
             end = Clock::now().time_since_epoch().count();
             interval = static_cast<double> (((double)end - (double)start) / k);
             write(csv, "Xor", loadFactor[i], interval, n, j, true);
-
-            start = Clock::now().time_since_epoch().count();
-            for (int t = 0; t < k; t++)  XF.Member(keys[t]);
-            end = Clock::now().time_since_epoch().count();
-            interval = static_cast<double> (((double)end - (double)start) / n);
-            write(csv, "Xor fixed", loadFactor[i], interval, n, j, true);
         }
 
 //        n *= 10;
@@ -221,18 +212,16 @@ void lf_negQueryTime() {
 
     writeHeader(csv, {"FilterType", "lf", "queryTime", "n","iteration"});
     for (int i = 0; i < 5; i++) {
-        for (int j = 1; j <= 1; j++) {
+        for (int j = 1; j <= 10; j++) {
             BloomFilter B(n,fpr, false);
             CuckooFilter C(n, fpr, false);
             BlockedBloom BB(n, fpr, false);
             XorFilter X(n, fpr, false);
-            XorFilter_fixed XF(n, fpr, false);
 
             B.AddAll(keyLf[i]);
             C.AddAll(keyLf[i]);
             BB.AddAll(keyLf[i]);
             X.AddAll(keyLf[i]);
-            XF.AddAll(keyLf[i]);
 
             start = Clock::now().time_since_epoch().count();
             for (int t = 0; t < k; t++) B.Member(keysNeg[t]);
@@ -258,12 +247,6 @@ void lf_negQueryTime() {
             end = Clock::now().time_since_epoch().count();
             interval = static_cast<double> (((double)end - (double)start) / k);
             write(csv, "Xor", loadFactor[i], interval, n, j, true);
-
-            start = Clock::now().time_since_epoch().count();
-            for (int t = 0; t < k; t++)  XF.Member(keysNeg[t]);
-            end = Clock::now().time_since_epoch().count();
-            interval = static_cast<double> (((double)end - (double)start) / n);
-            write(csv, "Xor fixed", loadFactor[i], interval, n, j, true);
         }
 
 //        n *= 10;
@@ -272,7 +255,7 @@ void lf_negQueryTime() {
 
 void n_buildTime() {
     CSVWriter csv("buildTime_n.csv");
-    int n = 1000000;
+    int n = 10000;
     double fpr = 0.01;
 
     using Clock = high_resolution_clock;
@@ -280,15 +263,16 @@ void n_buildTime() {
     long long end;
     double interval;
 
+    std::vector<uint64_t> keys = util::generateUniqueKeys(n);
     writeHeader(csv, {"FilterType", "n", "constTime", "fpr","iteration"});
-    for (int i = 0; i < 1; i++) {
-        for (int j = 1; j <= 5; j++) {
-            std::vector<uint64_t> keys = util::generateUniqueKeys(n);
+    for (int i = 0; i < 5; i++) {
+        for (int j = 1; j <= 10; j++) {
+//            std::vector<uint64_t> keys = util::generateUniqueKeys(n);
             BloomFilter B(n,fpr, false);
             CuckooFilter C(n, fpr, false);
             BlockedBloom BB(n, fpr, false);
             XorFilter X(n, fpr, false);
-            XorFilter_fixed XF(n, fpr, false);
+//            XorFilter_fixed XF(n, fpr, false);
 
             start = Clock::now().time_since_epoch().count();
             B.AddAll(keys);
@@ -315,11 +299,11 @@ void n_buildTime() {
             interval = static_cast<double> (((double)end - (double)start) / n);
             write(csv, "Xor", n, interval, fpr, j, true);
 
-            start = Clock::now().time_since_epoch().count();
-            XF.AddAll(keys);
-            end = Clock::now().time_since_epoch().count();
-            interval = static_cast<double> (((double)end - (double)start) / n);
-            write(csv, "Xor fixed", n, interval, fpr, j, true);
+//            start = Clock::now().time_since_epoch().count();
+//            XF.AddAll(keys);
+//            end = Clock::now().time_since_epoch().count();
+//            interval = static_cast<double> (((double)end - (double)start) / n);
+//            write(csv, "Xor fixed", n, interval, fpr, j, true);
         }
 
         n *= 10;
@@ -329,15 +313,16 @@ void n_buildTime() {
 void target_actual_fpr() {
     CSVWriter csv("target_actual_fpr.csv");
     int n = 2000000;
+    int size = ceil(n/2);
     double fpr = 0.01;
 
     writeHeader(csv, {"FilterType", "actual", "target", "n","iteration"});
-    for (int i = 0; i < 2; i++) {
-        BloomFilter B(n,fpr,false);
-        CuckooFilter C(n, fpr, false);
-        BlockedBloom BB(n, fpr, false);
-        XorFilter X(n, fpr, false);
-        XorFilter_fixed XF(n, fpr, false);
+    for (int i = 0; i < 1; i++) {
+        BloomFilter B(size,fpr,false);
+        CuckooFilter C(size, fpr, false);
+        BlockedBloom BB(size, fpr, false);
+        XorFilter X(size, fpr, false);
+//        XorFilter_fixed XF(n, fpr, false);
         vector<uint64_t> keys = util::generateUniqueKeys(n);
         vector<uint64_t> inserted(keys.begin(), keys.begin() + ceil(n / 2));
         vector<uint64_t> notInserted(keys.begin() + ceil(n / 2), keys.end());
@@ -345,57 +330,42 @@ void target_actual_fpr() {
         // Add half of the random generated keys
         for (int i = 0; i < n / 2; i++) {
             B.Add(keys[i]);
+            C.Add(keys[i]);
+            BB.Add(keys[i]);
         }
+        X.Add(inserted);
+
         // Test false positive rate by querying the other half that hasn't been added
         for (int i = n / 2; i < n; i++) {
             if (B.Member(keys[i])) count++;
         }
+        B.Info();
         double actual =  (double)count / ((double)n / 2);
         write(csv, "Bloom", actual, fpr, n, i, true);
-
         count = 0;
-        for (int i = 0; i < n / 2; i++) {
-            C.Add(keys[i]);
-        }
-        // Test false positive rate by querying the other half that hasn't been added
+
         for (int i = n / 2; i < n; i++) {
             if (C.Member(keys[i])) count++;
         }
         actual =  (double)count / ((double)n / 2);
         write(csv, "Cuckoo", actual, fpr, n, i, true);
-
         count = 0;
         for (int i = 0; i < n / 2; i++) {
-            BB.Add(keys[i]);
         }
-        // Test false positive rate by querying the other half that hasn't been added
-        for (int i = n / 2; i < n; i++) {
-            if (BB.Member(keys[i])) count++;
+
+        for (int i = 0; i < notInserted.size(); i++) {
+            if (BB.Member(notInserted[i])) count++;
         }
         actual =  (double)count / ((double)n / 2);
         write(csv, "Blocked Bloom", actual, fpr, n, i, true);
-//
-//        count = 0;
-//        for (int i = 0; i < n / 2; i++) {
-//            X.Add(inserted);
-//        }
-//        // Test false positive rate by querying the other half that hasn't been added
-//        for (int i = 0; i < notInserted.size(); i++) {
-//            if (X.Member(notInserted[i])) count++;
-//        }
-//        actual =  (double)count / ((double)n / 2);
-//        write(csv, "Xor", actual, fpr, n, i, true);
+        count = 0;
 
-//        count = 0;
-//        for (int i = 0; i < n / 2; i++) {
-//            XF.Add(inserted);
-//        }
-//        // Test false positive rate by querying the other half that hasn't been added
-//        for (int i = 0; i < notInserted.size(); i++) {
-//            if (XF.Member(notInserted[i])) count++;
-//        }
-//        actual =  (double)count / ((double)n / 2);
-//        write(csv, "Xor_fixed", actual, fpr, n, i, true);
+        // Test false positive rate by querying the other half that hasn't been added
+        for (int i = 0; i < notInserted.size(); i++) {
+            if (X.Member(notInserted[i])) count++;
+        }
+        actual =  (double)count / ((double)n / 2);
+        write(csv, "Xor", actual, fpr, n, i, true);
     }
 }
 
@@ -448,7 +418,6 @@ void a() {
     std::vector<uint64_t> keys = util::generateUniqueKeys(n);
     XorFilter X(n, fpr, false);
     XorFilter_fixed XF(n, fpr, false);
-
 //
 //    start = Clock::now().time_since_epoch().count();
 //    X.AddAll(keys);
@@ -463,6 +432,41 @@ void a() {
     std::cout << interval << std::endl;
 }
 
+void d() {
+    uint64_t x = 0xFFFF;
+    using Clock = high_resolution_clock;
+    long long start;
+    long long end;
+    double interval;
+
+    start = Clock::now().time_since_epoch().count();
+//    vector<uint64_t> a = util::loadKeys("keys_10000000_1", 10000000);
+    end = Clock::now().time_since_epoch().count();
+    interval = static_cast<double> (((double)end - (double)start));
+    std::cout << "Comparison" << interval << std::endl;
+
+}
+
+void xor_attempt() {
+    int n = 10000000;
+    int fpr = 0.001;
+    int failed = 0;
+    for (int i = 0; i < 10; i++) {
+        XorFilter X(n, fpr, false);
+        vector<uint64_t> keys = util::generateUniqueKeys(n);
+        X.Add(keys);
+        failed += X.attempt;
+    }
+    std::cout << failed << std::endl;
+}
+
+void bB_everything() {
+    int n = 2000000;
+    double fpr = 0.01;
+    BlockedBloom(n/2, fpr, false);
+}
+
+
 void benchmark() {
 //    fpr_bpi();
 //    n_buildTime();
@@ -472,15 +476,18 @@ void benchmark() {
 //    a();
 //    b();
 //    c();
+//    d();
 }
 
-void _empirical() {
-    _bloom_m_fpr();
+void empirical() {
+//    bloom_m_fpr();
+//    xor_attempt();
+//    bB_everything();
 }
 
 
 int main() {
-//    _empirical();
+//    empirical();
     benchmark();
     return 0;
 }

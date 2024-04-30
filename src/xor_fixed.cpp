@@ -8,9 +8,6 @@
 #include <queue>
 #include <iostream>
 #include <unordered_set>
-#include <thread>
-#include <mutex>
-#include <atomic>
 
 #include "xor_fixed.h"
 #include "util.h"

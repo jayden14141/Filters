@@ -18,9 +18,9 @@ BloomFilter::BloomFilter(int n, double fpr, bool construct) {
     this->fpr = fpr;
     this->n = n;
     this->size = (int) _getSize();
+    this->bits_per_item = (double)size*64/(double)n;
     this->m = (int) _getM();
     this->data = new uint64_t[size];
-    this->bits_per_item = (double)size*64/(double)n;
     std::fill_n(data,size,0);
     if (construct) _insertKeys();
 }
@@ -80,7 +80,7 @@ void BloomFilter::Info() const {
 }
 
 size_t BloomFilter::_getM() const {
-    return std::max(1, (int)round((double)size*64*log(2)/n));
+    return ceil(bits_per_item * log(2));
 }
 
 size_t BloomFilter::_getSize() const {

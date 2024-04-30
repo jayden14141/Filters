@@ -25,6 +25,7 @@ namespace xorFilter {
         hash_function::Ranged_SimpleMixHashing hasher2;
         hash_function::FingerPrinting fingerPrinter;
         std::vector<uint64_t> keys;
+        int attempt = 0;
 
         XorFilter(int n, double fpr, bool construct);
 

@@ -77,7 +77,7 @@ int xorFilter::XorFilter::_getF() const {
 }
 
 size_t xorFilter::XorFilter::_getSize() const {
-    return ceil(1.23*n + 32);
+    return ceil(1.23* n + 32);
 }
 
 void xorFilter::XorFilter::_insertKeys() {
@@ -86,6 +86,7 @@ void xorFilter::XorFilter::_insertKeys() {
     bool success = false;
     success = _map(sigma);
     while (!success) {
+        attempt++;
         _newHash();
         sigma.clear();
         sigma.reserve(n);

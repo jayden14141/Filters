@@ -46,5 +46,15 @@ namespace hash_function {
         Ranged_SimpleMixHashing(uint64_t start, uint64_t size);
         uint64_t operator()(uint64_t key) const;
     };
+
+    class ROTL {
+    public:
+        static inline uint64_t rotl64(uint64_t n, unsigned int c) {
+            const unsigned int mask = (CHAR_BIT * sizeof(n) - 1);
+            c &= mask;
+            return (n << c) | ( n >> ((-c) & mask));
+        }
+    };
+
 }
 #endif //FILTERS_HASH_FUNCTION_H

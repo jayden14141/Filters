@@ -17,7 +17,7 @@ blockedBloomFilter::BlockedBloom::BlockedBloom(int n, double fpr, bool construct
     bits_per_item = _getBpi();
     size = _getSize();
 
-    bucketCount = ceil((bits_per_item * n / 64) / sizeof(Bucket));
+    bucketCount = ceil(bits_per_item * n / 8);
     size_t alloc_size = bucketCount * sizeof(Bucket);
     buckets = static_cast<Bucket*>(malloc(alloc_size));
 
@@ -32,10 +32,8 @@ blockedBloomFilter::BlockedBloom::~BlockedBloom() {
 void blockedBloomFilter::BlockedBloom::Add(const uint64_t &item) {
     auto hashed = hasher(item);
     uint32_t bucket_index = util::fastRangeSize(hashed, bucketCount);
-    uint16x8_t mask = _makeMask(static_cast<uint16_t>(hashed & 0xFFFF));
-    uint16x8_t bucket = vld1q_u16(reinterpret_cast<uint16_t*>(&buckets[bucket_index]));
-    bucket = vorrq_u16(bucket, mask);
-    vst1q_u16(reinterpret_cast<uint16_t*>(&buckets[bucket_index]), bucket);
+    uint16x8_t mask = _makeMask(static_cast<uint16_t>(hashed));
+    buckets[bucket_index] = vorrq_u16(mask, buckets[bucket_index]);
 }
 
 void blockedBloomFilter::BlockedBloom::AddAll(std::vector<uint64_t> &keys) {
@@ -47,9 +45,8 @@ void blockedBloomFilter::BlockedBloom::AddAll(std::vector<uint64_t> &keys) {
 bool blockedBloomFilter::BlockedBloom::Member(const uint64_t &item) {
     auto hashed = hasher(item);
     uint32_t bucket_index = util::fastRangeSize(hashed, bucketCount);
-    uint16x8_t mask = _makeMask(static_cast<uint16_t>(hashed & 0xFFFF));
-    uint16x8_t bucket = vld1q_u16(reinterpret_cast<uint16_t*>(&buckets[bucket_index]));
-
+    uint16x8_t mask = _makeMask(static_cast<uint16_t>(hashed));
+    uint16x8_t bucket = buckets[bucket_index];
     uint16x8_t compare = vceqq_u16(vandq_u16(bucket,mask) , mask);
 
     uint64x1_t reduced = vpmin_u32(vget_low_u16(compare), vget_high_u16(compare));
@@ -81,7 +78,7 @@ void blockedBloomFilter::BlockedBloom::Info() const {
 }
 
 double blockedBloomFilter::BlockedBloom::_getBpi() const {
-    return -log2(fpr) / log(2);
+    return 1.30 * -log2(fpr) / log(2);
 }
 
 size_t blockedBloomFilter::BlockedBloom::_getSize() const {

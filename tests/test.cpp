@@ -138,17 +138,41 @@ void test_xor() {
     std::cout << std::boolalpha << x.Member(k[0]) << std::endl;
 }
 
+void test_bBloom() {
+    std::vector<uint64_t> k = util::generateUniqueKeys(20000);
+    /*std::vector<uint64_t> inserted;
+    for (int i = 0; i < 10000; i++) {
+        inserted.push_back(k[i]);
+    }*/
+    BlockedBloom BB(10000, 0.01, false);
+    std::cout << "Size:" << BB.Size() << std::endl;
+
+    std::cout << "Querying item 1:" << std::endl;
+    std::cout << std::boolalpha << BB.Member(k[0]) << std::endl;
+
+    std::cout << "Querying item 2:" << std::endl;
+    std::cout << std::boolalpha << BB.Member(k[9999]) << std::endl;
+
+    std::cout << "Adding item 2" << std::endl;
+    BB.AddAll(k);
+
+    std::cout << "Querying item 2:" << std::endl;
+    std::cout << std::boolalpha << BB.Member(k[9999]) << std::endl;
+
+}
+
 void test_correctness() {
-    test_bloom();
+//    test_bloom();
 //    test_cuckoo();
 //    test_xor();
+    test_bBloom();
 }
 
 
 int main() {
 //    test_hash();
-//    test_correctness();
-    test_fpr();
+    test_correctness();
+//    test_fpr();
 //    test_fnr();
     return 0;
 }

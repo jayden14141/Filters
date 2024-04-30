@@ -89,7 +89,7 @@ void cuckooFilter::CuckooFilter::Info() const {
 }
 
 size_t cuckooFilter::CuckooFilter::_getM() const {
-    return static_cast<size_t> (ceil(n/load_factor));
+    return static_cast<size_t> (ceil(n/load_factor*b));
 }
 
 int cuckooFilter::CuckooFilter::_getF() const {
