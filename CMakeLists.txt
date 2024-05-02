@@ -23,6 +23,7 @@ add_library(filters
         src/blocked_bloom.h
         src/blocked_bloom.cpp
         src/xor_fixed.cpp
+        src/template/bloom_t.h
 )
 
 if (MSVC)

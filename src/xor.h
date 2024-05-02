@@ -78,9 +78,9 @@ namespace xorFilter {
 
         void _insertKeys();
 
-        bool _map(std::vector<std::pair<uint64_t, size_t>> &sigma);
+        bool _map(std::vector<std::pair<uint64_t, size_t> > &sigma);
 
-        void _assign(const std::vector<std::pair<uint64_t , size_t>> &sigma);
+        void _assign(const std::vector<std::pair<uint64_t , size_t> > &sigma);
 
         void _newHash();
     };

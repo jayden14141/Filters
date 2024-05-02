@@ -317,7 +317,7 @@ void target_actual_fpr() {
     double fpr = 0.01;
 
     writeHeader(csv, {"FilterType", "actual", "target", "n","iteration"});
-    for (int i = 0; i < 1; i++) {
+    for (int i = 0; i < 15; i++) {
         BloomFilter B(size,fpr,false);
         CuckooFilter C(size, fpr, false);
         BlockedBloom BB(size, fpr, false);
@@ -339,7 +339,7 @@ void target_actual_fpr() {
         for (int i = n / 2; i < n; i++) {
             if (B.Member(keys[i])) count++;
         }
-        B.Info();
+
         double actual =  (double)count / ((double)n / 2);
         write(csv, "Bloom", actual, fpr, n, i, true);
         count = 0;
@@ -433,18 +433,55 @@ void a() {
 }
 
 void d() {
-    uint64_t x = 0xFFFF;
-    using Clock = high_resolution_clock;
-    long long start;
-    long long end;
-    double interval;
+    int n = 20000;
+    int size = ceil(n/2);
+    for (int k = 0; k < 4; k++) {
+        double fpr = 0.0001;
+        for (int j = 0; j < 4; j++) {
+            for (int i = 0; i < 1; i++) {
+                BloomFilter B(int(n/2),fpr,false);
+                vector<uint64_t> keys = util::generateUniqueKeys(n);
+                vector<uint64_t> inserted(keys.begin(), keys.begin() + ceil(n / 2));
+                vector<uint64_t> notInserted(keys.begin() + ceil(n / 2), keys.end());
+                int count = 0;
+                // Add half of the random generated keys
+                for (int i = 0; i < n / 2; i++) {
+                    B.Add(keys[i]);
+                }
 
-    start = Clock::now().time_since_epoch().count();
-//    vector<uint64_t> a = util::loadKeys("keys_10000000_1", 10000000);
-    end = Clock::now().time_since_epoch().count();
-    interval = static_cast<double> (((double)end - (double)start));
-    std::cout << "Comparison" << interval << std::endl;
+                // Test false positive rate by querying the other half that hasn't been added
+                for (int i = n / 2; i < n; i++) {
+                    if (B.Member(keys[i])) count++;
+                }
 
+                double actual =  (double)count / ((double)n / 2);
+                std::cout << "N: " << n << ", fpr: " << fpr <<", actual: " << actual << std::endl;
+            }
+            fpr *= 10;
+        }
+        n *= 10;
+    }
+}
+
+void e() {
+    int n = 1000000;
+    double fpr = 0.01;
+    BloomFilter B(n / 2 ,fpr,false);
+    vector<uint64_t> keys = util::generateUniqueKeys(n);
+    int count = 0;
+    // Add half of the random generated keys
+    for (int i = 0; i < n / 2; i++) {
+        B.Add(keys[i]);
+    }
+
+    // Test false positive rate by querying the other half that hasn't been added
+    for (int i = n / 2; i < n; i++) {
+        if (B.Member(keys[i])) count++;
+    }
+
+    double actual =  (double)count / ((double)n / 2);
+    std::cout << "N: " << n << ", fpr: " << fpr <<", actual: " << actual << std::endl;
+    B.Info();
 }
 
 void xor_attempt() {
@@ -472,11 +509,12 @@ void benchmark() {
 //    n_buildTime();
 //    lf_posQueryTime();
 //    lf_negQueryTime();
-    target_actual_fpr();
+//    target_actual_fpr();
 //    a();
 //    b();
 //    c();
 //    d();
+    e();
 }
 
 void empirical() {

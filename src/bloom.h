@@ -16,6 +16,7 @@ namespace bloomFilter {
     public:
         uint64_t *data;
         hash_function::SimpleMixHashing hasher;
+        std::vector<hash_function::SimpleMixHashing> hashFamily;
 
         BloomFilter(int n, double fpr, bool construct);
 
@@ -60,6 +61,8 @@ namespace bloomFilter {
         size_t _getSize() const;
 
         void _insertKeys();
+
+        void _generateHashFamily();
     };
 }
 
