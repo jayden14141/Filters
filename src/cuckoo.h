@@ -9,13 +9,14 @@
 #include <cstdlib>
 #include "hash_function.h"
 #include "table.h"
+#include "table_test.h"
 
 namespace cuckooFilter {
 
     class CuckooFilter {
     public:
 
-        Table *data;
+        Table_test *data;
 
         hash_function::SimpleMixHashing hasher;
 

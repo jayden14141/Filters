@@ -10,7 +10,8 @@
 
 namespace cuckooFilter {
     struct Bucket {
-        std::bitset<68> data;
+        std::bitset<200> data;
+//        std::bitset<68> data;
         // Size in bits
         size_t size;
 

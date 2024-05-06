@@ -14,7 +14,7 @@ cuckooFilter::CuckooFilter::CuckooFilter(int n, double fpr, bool construct) {
     this->size = _getSize();
     fingerPrinter.set(f);
 
-    this->data = new Table(b,f,(int)m);
+    this->data = new Table_test(b,f,(int)m);
     this->bits_per_item = (double)f/(double)load_factor;
     if (construct) _insertKeys();
 }
@@ -56,6 +56,7 @@ bool cuckooFilter::CuckooFilter::AddAll(std::vector<uint64_t> &keys) {
     for (int i = 0; i < keys.size(); i++) {
         Add(keys[i]);
     }
+    return true;
 }
 
 bool cuckooFilter::CuckooFilter::Member(const uint64_t &item) const {

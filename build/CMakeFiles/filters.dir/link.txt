@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libfilters.a CMakeFiles/filters.dir/src/bloom.cpp.o CMakeFiles/filters.dir/src/hash_function.cpp.o CMakeFiles/filters.dir/src/util.cpp.o CMakeFiles/filters.dir/src/table.cpp.o CMakeFiles/filters.dir/src/cuckoo.cpp.o CMakeFiles/filters.dir/src/xor.cpp.o CMakeFiles/filters.dir/src/blocked_bloom.cpp.o CMakeFiles/filters.dir/src/xor_fixed.cpp.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libfilters.a

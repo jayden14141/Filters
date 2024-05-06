@@ -13,6 +13,7 @@
 #include "../src/bloom.h"
 #include "../src/blocked_bloom.h"
 #include "../src/cuckoo.h"
+#include "../src/cuckoo_test.h"
 #include "../src/hash_function.h"
 #include "../src/xor.h"
 #include "../src/xor_fixed.h"
@@ -85,35 +86,12 @@ void fpr_bpi() {
         write(csv, "Cuckoo", n, fpr, C.Bpi(), -1, false);
         XorFilter X(n, fpr, false);
         write(csv, "Xor", n, fpr, X.Bpi(), -1, false);
+        BlockedBloom BB(n,fpr,false);
+        write(csv, "Blocked Bloom", n, fpr, BB.Bpi(), -1, false);
 
 
         write(csv, "Lower Bound", n, fpr, log2(1/fpr), -1, false);
         fpr *= 10;
-    }
-}
-
-void bloom_m_fpr() {
-    CSVWriter csv("bloom_m_fpr.csv");
-    vector<double> targetFpr = {0.001, 0.005, 0.01, 0.05, 0.1, 0.5};
-    vector<int> m_var = {-2, -1, 0, 1, 2};
-    int n = 1000000;
-    int half = (floor)(n / 2);
-    writeHeader(csv, {"FilterType", "m", "fpr", "targetFpr","iteration"});
-    for (int i = 0; i < 6; i++) {
-        for (int j = 0; j < 5; j++) {
-            BloomFilter B(n,targetFpr[i],false);
-            B.m += m_var[j];
-            vector<uint64_t> keys = util::generateUniqueKeys(n);
-            vector<uint64_t> keysAdded(keys.begin(), keys.begin() + half);
-            vector<uint64_t> keysNotAdded(keys.begin() + half, keys.end());
-            int count = 0;
-            for (uint64_t k : keysAdded) B.Add(k);
-            for (uint64_t k : keysNotAdded) {
-                if (B.Member(k)) count++;
-            }
-            double actualFpr = (double)count/half;
-            write(csv, "Bloom", B.m, actualFpr, targetFpr[i], -1, false);
-        }
     }
 }
 
@@ -266,8 +244,8 @@ void n_buildTime() {
     std::vector<uint64_t> keys = util::generateUniqueKeys(n);
     writeHeader(csv, {"FilterType", "n", "constTime", "fpr","iteration"});
     for (int i = 0; i < 5; i++) {
+        std::vector<uint64_t> keys = util::generateUniqueKeys(n);
         for (int j = 1; j <= 10; j++) {
-//            std::vector<uint64_t> keys = util::generateUniqueKeys(n);
             BloomFilter B(n,fpr, false);
             CuckooFilter C(n, fpr, false);
             BlockedBloom BB(n, fpr, false);
@@ -408,7 +386,7 @@ void a() {
 //    int n = 1000000;
 //    XorFilter x(n, 0.01, true);
 //    x.Info();
-    int n = 20;
+    int n = 1000000;
     double fpr = 0.01;
 
     using Clock = high_resolution_clock;
@@ -416,17 +394,17 @@ void a() {
     long long end;
     double interval;
     std::vector<uint64_t> keys = util::generateUniqueKeys(n);
-    XorFilter X(n, fpr, false);
-    XorFilter_fixed XF(n, fpr, false);
+    CuckooFilter C(n, fpr, false);
+    CuckooFilter_test CT(n, fpr, false, 4);
 //
-//    start = Clock::now().time_since_epoch().count();
-//    X.AddAll(keys);
-//    end = Clock::now().time_since_epoch().count();
-//    interval = static_cast<double> (((double)end - (double)start) / n);
-//    std::cout << interval << std::endl;
+    start = Clock::now().time_since_epoch().count();
+    C.AddAll(keys);
+    end = Clock::now().time_since_epoch().count();
+    interval = static_cast<double> (((double)end - (double)start) / n);
+    std::cout << interval << std::endl;
 
     start = Clock::now().time_since_epoch().count();
-    XF.AddAll(keys);
+    CT.AddAll(keys);
     end = Clock::now().time_since_epoch().count();
     interval = static_cast<double> (((double)end - (double)start) / n);
     std::cout << interval << std::endl;
@@ -485,8 +463,8 @@ void e() {
 }
 
 void xor_attempt() {
-    int n = 10000000;
-    int fpr = 0.001;
+    int n = 1000000;
+    double fpr = 0.01;
     int failed = 0;
     for (int i = 0; i < 10; i++) {
         XorFilter X(n, fpr, false);
@@ -503,6 +481,159 @@ void bB_everything() {
     BlockedBloom(n/2, fpr, false);
 }
 
+void bloom_fpr() {
+    CSVWriter csv("lf_posQueryTime.csv");
+    int n = 1000000;
+    int k = 100;
+    vector<double> loadFactor = {0, 0.25, 0.5, 0.75, 1};
+    double fpr = 0.01;
+
+    int size_25 = n * 0.25;
+    int size_50 = n * 0.5;
+    int size_75 = n * 0.75;
+
+    std::vector<uint64_t> keys = util::generateUniqueKeys(n);
+
+    writeHeader(csv, {"FilterType", "lf", "queryTime", "n","iteration"});
+}
+
+void bloom_m_fpr() {
+    CSVWriter csv("bloom_m_fpr.csv");
+    vector<double> targetFpr = {0.001, 0.01, 0.1};
+    vector<int> m_var = {-2, -1, 0, 1, 2};
+    int n = 2000000;
+    int half = (floor)(n / 2);
+    writeHeader(csv, {"FilterType", "m", "fpr", "targetFpr","iteration"});
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 5; j++) {
+            for (int a = 0; a < 15; a++) {
+                BloomFilter B(half,targetFpr[i],false);
+                B.m += m_var[j];
+                vector<uint64_t> keys = util::generateUniqueKeys(n);
+                vector<uint64_t> keysAdded(keys.begin(), keys.begin() + half);
+                vector<uint64_t> keysNotAdded(keys.begin() + half, keys.end());
+                int count = 0;
+                for (uint64_t k : keysAdded) B.Add(k);
+                for (uint64_t k : keysNotAdded) {
+                    if (B.Member(k)) count++;
+                }
+                double actualFpr = (double)count/half;
+                write(csv, "Bloom", B.m, actualFpr, targetFpr[i], a, true);
+            }
+        }
+    }
+}
+
+void bloom_m_constTime() {
+    CSVWriter csv("bloom_m_constTime.csv");
+    vector<double> targetFpr = {0.001, 0.01, 0.1};
+    vector<int> m_var = {-2, -1, 0, 1, 2};
+    int n = 2000000;
+    int half = (floor)(n / 2);
+    using Clock = high_resolution_clock;
+    long long start;
+    long long end;
+    double interval;
+
+    writeHeader(csv, {"FilterType", "m", "constTime", "targetFpr","iteration"});
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 5; j++) {
+            for (int a = 0; a < 15; a++) {
+                BloomFilter B(half,targetFpr[i],false);
+                B.m += m_var[j];
+                vector<uint64_t> keys = util::generateUniqueKeys(half);
+                start = Clock::now().time_since_epoch().count();
+                B.AddAll(keys);
+                end = Clock::now().time_since_epoch().count();
+                interval = static_cast<double> (((double)end - (double)start) / half);
+
+                write(csv, "Bloom", B.m, interval, targetFpr[i], a, true);
+            }
+        }
+    }
+}
+
+void bloom_m_queryTime() {
+    CSVWriter csv("bloom_m_queryTime.csv");
+    vector<double> targetFpr = {0.001, 0.01, 0.1};
+    vector<int> m_var = {-2, -1, 0, 1, 2};
+    int n = 2000000;
+    int half = (floor)(n / 2);
+    using Clock = high_resolution_clock;
+    long long start;
+    long long end;
+    double interval;
+
+    writeHeader(csv, {"FilterType", "m", "constTime", "targetFpr","iteration"});
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 5; j++) {
+            for (int a = 0; a < 15; a++) {
+                BloomFilter B(half,targetFpr[i],false);
+                B.m += m_var[j];
+                vector<uint64_t> keys = util::generateUniqueKeys(n);
+
+                for (int i = 0; i < 1000000; i++) B.Add(keys[i]);
+                start = Clock::now().time_since_epoch().count();
+                for (int i = 500000; i < 1500000; i++) B.Member(keys[i]);
+                end = Clock::now().time_since_epoch().count();
+                interval = static_cast<double> (((double)end - (double)start) / half);
+
+                write(csv, "Bloom", B.m, interval, targetFpr[i], a, true);
+            }
+        }
+    }
+}
+
+void bloom_n_fpr() {
+    CSVWriter csv("bloom_n_fpr.csv");
+    vector<int> n = {10000, 100000, 1000000, 10000000, 100000000};
+    vector<double> targetFpr = {0.001, 0.01, 0.1};
+    writeHeader(csv, {"FilterType", "n", "fpr", "targetFpr","iteration"});
+//    vector<uint64_t> keys = util::generateUniqueKeys(200000000);
+    for (int i = 0; i < 5; i++) {
+        for (int j = 0; j < 3; j++) {
+            for (int k = 0; k < 10; k++) {
+                BloomFilter B(n[i], targetFpr[j], false);
+                int count = 0;
+                for (int a = 0; a < n[i]; a++) B.Add(a);
+                for (int a = n[i]; a < 2*n[i]; a++) {
+                    if (B.Member(a)) count++;
+                }
+                double actualFpr = (double)count/n[i];
+                write(csv, "Bloom", n[i], actualFpr, targetFpr[j], k, true);
+            }
+        }
+    }
+}
+
+void cuckoo_b_alpha() {
+    CSVWriter csv("cuckoo_b_alpha_n_1.csv");
+    vector<int> b = {1, 2, 4, 8};
+    vector<int> n = {10000, 100000, 1000000, 10000000};
+//    int n = 1000000;
+    double fpr = 0.01;
+    writeHeader(csv, {"FilterType", "b", "alpha", "n", "iteration"});
+    for (int q = 0; q < 4; q++) {
+        for (int i = 0; i < 4; i++) {
+            for (int j = 0; j < 15; j++) {
+                CuckooFilter_test C(n[q], fpr, false, b[i]);
+
+                double alpha = 0;
+                bool ended = false;
+                vector<uint64_t> keys = util::generateUniqueKeys(n[q]);
+                for (int k = 0; k < n[q]; k++) {
+                    if (!C.Add(keys[k]) & !ended) {
+                        alpha = C.load_factor;
+                        write(csv, "Cuckoo", b[i], alpha, n[q], j, true);
+                        ended = true;
+                    }
+                }
+                if (!ended) write(csv, "Cuckoo", b[i], 1, n[q], j, true);
+                else continue;
+            }
+        }
+    }
+}
 
 void benchmark() {
 //    fpr_bpi();
@@ -510,17 +641,22 @@ void benchmark() {
 //    lf_posQueryTime();
 //    lf_negQueryTime();
 //    target_actual_fpr();
-//    a();
+    a();
 //    b();
 //    c();
 //    d();
-    e();
+//    e();
 }
 
 void empirical() {
 //    bloom_m_fpr();
+//    bloom_m_constTime();
+//    bloom_m_queryTime();
 //    xor_attempt();
 //    bB_everything();
+//    cuckoo_b_alpha();
+// The one below takes lone time
+//    bloom_n_fpr();
 }
 
 

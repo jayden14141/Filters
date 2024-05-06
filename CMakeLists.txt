@@ -23,7 +23,9 @@ add_library(filters
         src/blocked_bloom.h
         src/blocked_bloom.cpp
         src/xor_fixed.cpp
-        src/template/bloom_t.h
+        src/cuckoo_test.cpp
+        src/cuckoo_test.h
+        src/table_test.h
 )
 
 if (MSVC)
@@ -31,7 +33,7 @@ if (MSVC)
     add_compile_options(/W4)
 else()
     # additional warnings
-    add_compile_options(-Wall -Wextra -Wpedantic -O3 -march=native -fprefetch-loop-arrays)
+    add_compile_options(-DNDEBUG -O3 -march=native -fprefetch-loop-arrays)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 endif()

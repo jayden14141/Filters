@@ -136,8 +136,14 @@ bool xorFilter::XorFilter::_map(std::vector<std::pair<uint64_t, size_t>> &sigma)
 }
 
 void xorFilter::XorFilter::_assign(const std::vector<std::pair<uint64_t, size_t>> &sigma) {
-    for (const auto &[x, i]: sigma) {
-        data[i] = 0;
+
+//    for (const auto &[x, i]: sigma) {
+//        data[i] = 0;
+//        uint64_t finger = fingerPrinter(x);
+//        data[i] = finger ^ data[hasher0(x)] ^ data[hasher1(x)] ^ data[hasher2(x)];
+//    }
+    for (auto it = sigma.rbegin(); it != sigma.rend(); it++) {
+        const auto &[x, i] = *it;
         uint64_t finger = fingerPrinter(x);
         data[i] = finger ^ data[hasher0(x)] ^ data[hasher1(x)] ^ data[hasher2(x)];
     }
