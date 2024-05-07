@@ -43,6 +43,10 @@ namespace bloomFilter {
         double Bpi() const;
 
         void Info() const;
+
+        double Offset() const;
+
+
     private:
         // Size of the array itself
         size_t size;

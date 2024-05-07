@@ -14,8 +14,6 @@ add_library(filters
         src/hash_function.h
         src/util.h
         src/util.cpp
-        src/table.cpp
-        src/table.h
         src/cuckoo.h
         src/cuckoo.cpp
         src/xor.h
@@ -25,7 +23,7 @@ add_library(filters
         src/xor_fixed.cpp
         src/cuckoo_test.cpp
         src/cuckoo_test.h
-        src/table_test.h
+        src/table.h
 )
 
 if (MSVC)

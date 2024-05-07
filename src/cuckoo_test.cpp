@@ -15,7 +15,7 @@ cuckooFilter::CuckooFilter_test::CuckooFilter_test(int n, double fpr, bool const
     this->size = _getSize();
     fingerPrinter.set(f);
 
-    this->data = new Table_test(b,f,(int)m);
+    this->data = new Table(b, f, (int)m);
     this->bits_per_item = (double)f;
     if (construct) _insertKeys();
 }
@@ -33,10 +33,12 @@ bool cuckooFilter::CuckooFilter_test::Add(const uint64_t &item) {
     size_t victim;
     uint64_t new_pos = hashed_one;
     if (data->HasEmptyEntry(util::fastRangeSize(hashed_one, m))) {
+        if (count + 1 == n) return true;
         data->InsertTag(util::fastRangeSize(hashed_one, m), fingerPrint, false, victim);
         count++;
         return true;
     } else if (data->HasEmptyEntry(util::fastRangeSize(hashed_two, m))) {
+        if (count + 1 == n) return true;
         data->InsertTag(util::fastRangeSize(hashed_two, m), fingerPrint, false, victim);
         count++;
         return true;
@@ -46,6 +48,7 @@ bool cuckooFilter::CuckooFilter_test::Add(const uint64_t &item) {
             data->InsertTag(util::fastRangeSize(new_pos, m), fingerPrint, true, victim);
             new_pos ^= hasher(victim);
             if (data->HasEmptyEntry(util::fastRangeSize(new_pos, m))) {
+                if (count + 1 == n) return true;
                 data-> InsertTag(util::fastRangeSize(new_pos, m), fingerPrint, false, victim);
                 count++;
                 return true;

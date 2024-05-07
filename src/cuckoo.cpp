@@ -14,7 +14,7 @@ cuckooFilter::CuckooFilter::CuckooFilter(int n, double fpr, bool construct) {
     this->size = _getSize();
     fingerPrinter.set(f);
 
-    this->data = new Table_test(b,f,(int)m);
+    this->data = new Table(b, f, (int)m);
     this->bits_per_item = (double)f/(double)load_factor;
     if (construct) _insertKeys();
 }

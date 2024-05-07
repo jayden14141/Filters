@@ -377,9 +377,10 @@ void c() {
 void b() {
     int n = 1000000;
     double fpr = 0.01;
-    BlockedBloom BB(n, fpr, false);
-    std::vector<uint64_t> keys = util::generateUniqueKeys(n);
-    BB.AddAll(keys);
+    BloomFilter B(n, fpr, false);
+//    std::vector<uint64_t> keys = util::generateUniqueKeys(n);
+//    BB.AddAll(keys);
+    std::cout << B.Offset() << std::endl;
 }
 
 void a() {
@@ -607,7 +608,7 @@ void bloom_n_fpr() {
 }
 
 void cuckoo_b_alpha() {
-    CSVWriter csv("cuckoo_b_alpha_n_1.csv");
+    CSVWriter csv("cuckoo_b_alpha_n.csv");
     vector<int> b = {1, 2, 4, 8};
     vector<int> n = {10000, 100000, 1000000, 10000000};
 //    int n = 1000000;
@@ -634,15 +635,34 @@ void cuckoo_b_alpha() {
         }
     }
 }
-
+void cuckoo_b_failure() {
+    CSVWriter csv("cuckoo_b_failure.csv");
+    vector<int> b = {1, 2, 4};
+    int n = 1000000;
+    int count = 0;
+    double fpr = 0.5;
+    writeHeader(csv, {"FilterType", "b", "failure", "n", "calculated"});
+    for (int q = 0; q < 3; q++) {
+        for (int a = 0; a < 10; a++) {
+            CuckooFilter_test C(n, fpr, false, b[q]);
+            for (int i =0; i < n; i++) C.Add(i);
+            count = 0;
+            for (int j = n; j < n+10000000; j++) {
+                if (!C.Add(j)) count++;
+            }
+            double failure = (double)count / 10000000;
+            write(csv, "Cuckoo", b[q], failure, n, 0, true);
+        }
+    }
+}
 void benchmark() {
 //    fpr_bpi();
 //    n_buildTime();
 //    lf_posQueryTime();
 //    lf_negQueryTime();
 //    target_actual_fpr();
-    a();
-//    b();
+//    a();
+    b();
 //    c();
 //    d();
 //    e();
@@ -650,18 +670,19 @@ void benchmark() {
 
 void empirical() {
 //    bloom_m_fpr();
-//    bloom_m_constTime();
+    bloom_m_constTime();
 //    bloom_m_queryTime();
 //    xor_attempt();
 //    bB_everything();
 //    cuckoo_b_alpha();
+//    cuckoo_b_failure();
 // The one below takes lone time
 //    bloom_n_fpr();
 }
 
 
 int main() {
-//    empirical();
-    benchmark();
+    empirical();
+//    benchmark();
     return 0;
 }

@@ -96,6 +96,10 @@ double BloomFilter::Bpi() const {
     return bits_per_item;
 }
 
+double BloomFilter::Offset() const {
+    return (m / fpr)*sqrt((log(size*64)-m*log(fpr))/(size*64));
+}
+
 size_t BloomFilter::_getM() const {
     return ceil(bits_per_item * log(2));
 }
