@@ -20,10 +20,15 @@ add_library(filters
         src/xor.cpp
         src/blocked_bloom.h
         src/blocked_bloom.cpp
-        src/xor_fixed.cpp
         src/cuckoo_test.cpp
         src/cuckoo_test.h
         src/table.h
+        src/blocked_bloom_test.h
+        src/blocked_bloom_test.cpp
+        src/cuckoo_test_fingerprint.h
+        src/cuckoo_test_fingerprint.cpp
+        src/xor_test.h
+        src/xor_test.cpp
 )
 
 if (MSVC)

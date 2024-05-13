@@ -1,9 +1,9 @@
 //
-// Created by Jayden on 03/03/2024.
+// Created by Jayden on 13/05/2024.
 //
 
-#ifndef FILTERS_XOR_FIXED_H
-#define FILTERS_XOR_FIXED_H
+#ifndef FILTERS_XOR_TEST_H
+#define FILTERS_XOR_TEST_H
 
 #include <string>
 #include <cstdint>
@@ -11,15 +11,13 @@
 #include <stack>
 #include <vector>
 #include <unordered_set>
-#include <mutex>
-#include <atomic>
 
 
 #include "hash_function.h"
 #include "util.h"
 
 namespace xorFilter {
-    class XorFilter_fixed {
+    class XorFilter_test {
     public:
         uint16_t *data;
         hash_function::Ranged_SimpleMixHashing hasher0;
@@ -27,13 +25,15 @@ namespace xorFilter {
         hash_function::Ranged_SimpleMixHashing hasher2;
         hash_function::FingerPrinting fingerPrinter;
         std::vector<uint64_t> keys;
+        int attempt = 0;
+        bool local;
 
-        XorFilter_fixed(int n, double fpr, bool construct);
+        XorFilter_test(int n, double fpr, double scale, bool construct, bool local);
 
-        ~XorFilter_fixed();
+        ~XorFilter_test();
 
         // Add an item to a filter
-        void Add(std::vector<uint64_t> &keys);
+        bool Add(std::vector<uint64_t> &keys);
 
         void AddAll(std::vector<uint64_t> &keys);
 
@@ -66,6 +66,8 @@ namespace xorFilter {
         // False Positive Rate
         double fpr;
 
+        double scale;
+
         struct hashDist {
             uint64_t hashValue;
             uint64_t count;
@@ -77,15 +79,14 @@ namespace xorFilter {
 
         size_t _getSize() const;
 
-        void _insertKeys();
+        bool _insertKeys();
 
-        bool _map(std::vector<std::pair<uint64_t, size_t>> &sigma);
+        bool _map(std::vector<std::pair<uint64_t, size_t> > &sigma);
 
-        void _assign(const std::vector<std::pair<uint64_t , size_t>> &sigma);
+        void _assign(const std::vector<std::pair<uint64_t , size_t> > &sigma);
 
         void _newHash();
     };
 }
 
-
-#endif //FILTERS_XOR_FIXED_H
+#endif //FILTERS_XOR_TEST_H

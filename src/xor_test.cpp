@@ -1,6 +1,8 @@
 //
-// Created by Jayden on 03/03/2024.
+// Created by Jayden on 13/05/2024.
 //
+
+#include "xor_test.h"
 
 #include <cstdlib>
 #include <stack>
@@ -12,7 +14,7 @@
 #include "xor.h"
 #include "util.h"
 
-xorFilter::XorFilter::XorFilter(int n, double fpr, bool construct) : n(n), fpr(fpr) {
+xorFilter::XorFilter_test::XorFilter_test(int n, double fpr, double scale, bool construct, bool local) :scale(scale), n(n), fpr(fpr), local(local) {
     this->f = _getF();
     fingerPrinter.set(f);
     this->size = _getSize();
@@ -26,21 +28,21 @@ xorFilter::XorFilter::XorFilter(int n, double fpr, bool construct) : n(n), fpr(f
     }
 }
 
-xorFilter::XorFilter::~XorFilter() {
+xorFilter::XorFilter_test::~XorFilter_test() {
     delete[] data;
 }
 
-void xorFilter::XorFilter::Add(std::vector<uint64_t> &keys) {
+bool xorFilter::XorFilter_test::Add(std::vector<uint64_t> &keys) {
+    this->keys = keys;
+    return _insertKeys();
+}
+
+void xorFilter::XorFilter_test::AddAll(std::vector<uint64_t> &keys) {
     this->keys = keys;
     _insertKeys();
 }
 
-void xorFilter::XorFilter::AddAll(std::vector<uint64_t> &keys) {
-    this->keys = keys;
-    _insertKeys();
-}
-
-bool xorFilter::XorFilter::Member(const uint64_t &item) const {
+bool xorFilter::XorFilter_test::Member(const uint64_t &item) const {
     uint16_t finger = fingerPrinter(item);
     uint16_t h0 = hasher0(item);
     uint16_t h1 = hasher1(item);
@@ -48,19 +50,19 @@ bool xorFilter::XorFilter::Member(const uint64_t &item) const {
     return finger == (data[h0] ^ data[h1] ^ data[h2]);
 }
 
-size_t xorFilter::XorFilter::Size() const {
+size_t xorFilter::XorFilter_test::Size() const {
     return size*f;
 }
 
-double xorFilter::XorFilter::Fpr() const {
+double xorFilter::XorFilter_test::Fpr() const {
     return fpr;
 }
 
-double xorFilter::XorFilter::Bpi() const {
+double xorFilter::XorFilter_test::Bpi() const {
     return bits_per_item;
 }
 
-void xorFilter::XorFilter::Info() const {
+void xorFilter::XorFilter_test::Info() const {
     std::cout << "XOR Filter" << std::endl;
     std::cout << "------------------------------- \n" << std::endl;
     std::cout << "Number of keys inserted  : " << n << std::endl;
@@ -72,26 +74,28 @@ void xorFilter::XorFilter::Info() const {
     std::cout << "Space overhead : " << 100 * (bits_per_item - log2(1/fpr)) / log2(1/fpr) << "% " << std::endl;
 }
 
-int xorFilter::XorFilter::_getF() const {
+int xorFilter::XorFilter_test::_getF() const {
     return ceil(log2(1/fpr));
 }
 
-size_t xorFilter::XorFilter::_getSize() const {
-    return ceil(1.23* n + 32);
+size_t xorFilter::XorFilter_test::_getSize() const {
+    return ceil(scale* n + 32);
 }
 
-void xorFilter::XorFilter::_insertKeys() {
+bool xorFilter::XorFilter_test::_insertKeys() {
     std::vector<std::pair<uint64_t, size_t>> sigma;
     sigma.reserve(n);
     bool success = false;
     success = _map(sigma);
-    while (!success) {
-        attempt++;
-        _newHash();
-        sigma.clear();
-        sigma.reserve(n);
-        success = _map(sigma);
-    }
+    if (!success) return false;
+    else return true;
+//    while (!success) {
+//        attempt++;
+//        _newHash();
+//        sigma.clear();
+//        sigma.reserve(n);
+//        success = _map(sigma);
+//    }
 
     _assign(sigma);
 //    if (success) {
@@ -101,7 +105,7 @@ void xorFilter::XorFilter::_insertKeys() {
 //    }
 }
 
-bool xorFilter::XorFilter::_map(std::vector<std::pair<uint64_t, size_t>> &sigma) {
+bool xorFilter::XorFilter_test::_map(std::vector<std::pair<uint64_t, size_t>> &sigma) {
     std::vector<size_t> counts(size, 0);
     std::vector<std::vector<uint64_t>> H(size);
     std::queue<size_t> queue;
@@ -140,7 +144,7 @@ bool xorFilter::XorFilter::_map(std::vector<std::pair<uint64_t, size_t>> &sigma)
     return sigma.size() == keys.size();
 }
 
-void xorFilter::XorFilter::_assign(const std::vector<std::pair<uint64_t, size_t>> &sigma) {
+void xorFilter::XorFilter_test::_assign(const std::vector<std::pair<uint64_t, size_t>> &sigma) {
 
 //    for (const auto &[x, i]: sigma) {
 //        data[i] = 0;
@@ -154,8 +158,14 @@ void xorFilter::XorFilter::_assign(const std::vector<std::pair<uint64_t, size_t>
     }
 }
 
-void xorFilter::XorFilter::_newHash() {
-    hasher0 = hash_function::Ranged_SimpleMixHashing(0,size/3);
-    hasher1 = hash_function::Ranged_SimpleMixHashing(size/3,size/3);
-    hasher2 = hash_function::Ranged_SimpleMixHashing(2*size/3,size/3);
+void xorFilter::XorFilter_test::_newHash() {
+    if (local) {
+        hasher0 = hash_function::Ranged_SimpleMixHashing(0,size/3);
+        hasher1 = hash_function::Ranged_SimpleMixHashing(size/3,size/3);
+        hasher2 = hash_function::Ranged_SimpleMixHashing(2*size/3,size/3);
+    } else {
+        hasher0 = hash_function::Ranged_SimpleMixHashing(0,size);
+        hasher1 = hash_function::Ranged_SimpleMixHashing(0,size);
+        hasher2 = hash_function::Ranged_SimpleMixHashing(0,size);
+    }
 }
